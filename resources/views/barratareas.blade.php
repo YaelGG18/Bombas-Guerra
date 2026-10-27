@@ -95,14 +95,14 @@
             font-size: 15px;
         }
 
-        /* Cuadrícula adaptable para los 7 apartados */
+        /* Cuadrícula para los 7 apartados */
         .grid-modulos {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
         }
 
-        /* Estilo básico de cada tarjeta */
+        /* Estilo de cada tarjeta */
         .tarjeta-modulo {
             background-color: #003366;
             color: white;
@@ -170,18 +170,18 @@
     <div class="contenido-principal">
         <div class="titulo-seccion">
             <h1>Panel Principal de Control</h1>
-            <p>Seleccione un módulo del taller para comenzar con la gestión de repuestos, servicios o ventas.</p>
+            <p>Selecciona un módulo para trabajar.</p>
         </div>
 
-        <!-- Los 7 Módulos principales -->
+        <!-- Los 7 Módulos principales con texto directo -->
         <div class="grid-modulos">
             
-            <a href="#" class="tarjeta-modulo">
+            <a href="/inventario" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">inventory_2</span>
                 </div>
                 <h3>Inventario y Stock</h3>
-                <p>Consulte existencias, almacenes, niveles mínimos y catalogación de repuestos.</p>
+                <p>Consulta de refacciones, piezas disponibles y mínimos.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
@@ -189,7 +189,7 @@
                     <span class="material-symbols-outlined">move_to_inbox</span>
                 </div>
                 <h3>Registrar Entrada</h3>
-                <p>Ingreso de nuevas bombas, piezas y componentes recibidos de proveedores.</p>
+                <p>Ingreso de mercancía.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
@@ -197,7 +197,7 @@
                     <span class="material-symbols-outlined">shopping_cart</span>
                 </div>
                 <h3>Venta Directa</h3>
-                <p>Despacho directo de componentes.</p>
+                <p>Venta mostrador de refacciones al instante.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
@@ -205,15 +205,15 @@
                     <span class="material-symbols-outlined">request_quote</span>
                 </div>
                 <h3>Cotizaciones</h3>
-                <p>Creación y gestión de presupuestos técnicos previos para los clientes.</p>
+                <p>Presupuestos de reparación y piezas.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">build</span>
                 </div>
-                <h3>Órdenes de Trabajo (OT)</h3>
-                <p>Gestión y seguimiento de reparaciones e intervenciones activas en el taller.</p>
+                <h3>Órdenes de Trabajo</h3>
+                <p>Reparaciones y trabajos activos en taller.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
@@ -221,7 +221,7 @@
                     <span class="material-symbols-outlined">verified_user</span>
                 </div>
                 <h3>Garantías</h3>
-                <p>Seguimiento de reclamos activos, devoluciones y servicio técnico oficial.</p>
+                <p>Registro de reclamos y devoluciones.</p>
             </a>
 
             <a href="#" class="tarjeta-modulo">
@@ -229,7 +229,7 @@
                     <span class="material-symbols-outlined">bar_chart</span>
                 </div>
                 <h3>Historial y Reportes</h3>
-                <p>Análisis de ventas, rotación de inventarios y rendimiento de mecánicos.</p>
+                <p>Movimientos, salidas y ventas registradas.</p>
             </a>
 
         </div>

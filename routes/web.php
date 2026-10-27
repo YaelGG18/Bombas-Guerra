@@ -11,3 +11,7 @@ Route::get('/', function () {
 Route::get('/barratareas', function () {
     return view('barratareas');
 });
+
+Route::get('/inventario', function () {
+    return view('inventario');
+});
