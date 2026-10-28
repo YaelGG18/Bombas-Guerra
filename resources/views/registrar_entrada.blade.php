@@ -227,7 +227,7 @@
     <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-            <a href="/dashboard" class="sidebar-header" title="Volver al Dashboard">
+            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>
@@ -252,7 +252,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/cotizaciones">
                         <span class="material-symbols-outlined">request_quote</span>
                         Cotizaciones
                     </a>
@@ -306,19 +306,11 @@
                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej. Sello Mecánico Silicio 1/2" required>
                 </div>
 
-                <!-- Tipo / Categoría y Marca -->
+                <!-- Tipo / Categoría (Texto Libre) y Marca -->
                 <div class="form-row-2">
                     <div class="form-group">
                         <label for="categoria">Tipo de Pieza / Categoría</label>
-                        <select id="categoria" name="categoria" class="form-control" required>
-                            <option value="" disabled selected>Seleccionar categoría...</option>
-                            <option value="Sello">Sello</option>
-                            <option value="Bomba">Bomba de Agua</option>
-                            <option value="Rotor">Rotor</option>
-                            <option value="Empacadura">Empacadura</option>
-                            <option value="Válvula">Válvula</option>
-                            <option value="Otro">Otro</option>
-                        </select>
+                        <input type="text" id="categoria" name="categoria" class="form-control" placeholder="Ej. Sello, Bomba, Rotor" required>
                     </div>
 
                     <div class="form-group">
@@ -327,26 +319,26 @@
                     </div>
                 </div>
 
-                <!-- Precios y Cantidades -->
+                <!-- Precios y Cantidades con min="0" para evitar números negativos -->
                 <div class="form-row-4">
                     <div class="form-group">
                         <label for="precio_compra">Precio Compra ($)</label>
-                        <input type="number" step="0.01" id="precio_compra" name="precio_compra" class="form-control" placeholder="0.00" required>
+                        <input type="number" step="1" min="0" id="precio_compra" name="precio_compra" class="form-control" placeholder="0.00" required>
                     </div>
 
                     <div class="form-group">
                         <label for="precio_venta">Precio Venta ($)</label>
-                        <input type="number" step="0.01" id="precio_venta" name="precio_venta" class="form-control" placeholder="0.00" required>
+                        <input type="number" step="1" min="0" id="precio_venta" name="precio_venta" class="form-control" placeholder="0.00" required>
                     </div>
 
                     <div class="form-group">
                         <label for="cantidad">Cantidad a Ingresar</label>
-                        <input type="number" id="cantidad" name="cantidad" class="form-control" placeholder="0" min="1" required>
+                        <input type="number" min="1" id="cantidad" name="cantidad" class="form-control" placeholder="1" required>
                     </div>
 
                     <div class="form-group">
                         <label for="stock_minimo">Stock Mínimo</label>
-                        <input type="number" id="stock_minimo" name="stock_minimo" class="form-control" placeholder="0" min="1" required>
+                        <input type="number" min="0" id="stock_minimo" name="stock_minimo" class="form-control" placeholder="0" required>
                     </div>
                 </div>
 

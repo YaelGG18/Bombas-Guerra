@@ -237,7 +237,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/cotizaciones">
                         <span class="material-symbols-outlined">request_quote</span>
                         Cotizaciones
                     </a>

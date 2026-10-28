@@ -19,3 +19,7 @@ Route::get('/inventario', function () {
 Route::get('/registrar_entrada', function () {
     return view('registrar_entrada');
 });
+
+Route::get('/cotizaciones', function () {
+    return view('cotizaciones');
+});

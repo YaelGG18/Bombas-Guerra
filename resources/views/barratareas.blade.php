@@ -200,7 +200,7 @@
                 <p>Venta mostrador de refacciones al instante.</p>
             </a>
 
-            <a href="#" class="tarjeta-modulo">
+            <a href="/cotizaciones" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">request_quote</span>
                 </div>
