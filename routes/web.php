@@ -15,3 +15,7 @@ Route::get('/barratareas', function () {
 Route::get('/inventario', function () {
     return view('inventario');
 });
+
+Route::get('/registrar_entrada', function () {
+    return view('registrar_entrada');
+});

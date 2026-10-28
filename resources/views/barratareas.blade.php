@@ -184,7 +184,7 @@
                 <p>Consulta de refacciones, piezas disponibles y mínimos.</p>
             </a>
 
-            <a href="#" class="tarjeta-modulo">
+            <a href="/registrar_entrada" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">move_to_inbox</span>
                 </div>

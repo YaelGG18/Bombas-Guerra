@@ -225,7 +225,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="registrar_entrada">
                         <span class="material-symbols-outlined">move_to_inbox</span>
                         Registrar Entrada
                     </a>
