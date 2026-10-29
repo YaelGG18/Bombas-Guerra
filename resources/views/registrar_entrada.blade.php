@@ -336,7 +336,7 @@
                 </li>
                 <li>
                     <!-- Ruta corregida y clase activo reubicada aquí -->
-                    <a href="/venta_directa" class="activo">
+                    <a href="/venta_directa">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
                     </a>
