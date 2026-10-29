@@ -334,8 +334,7 @@
                         Registrar Entrada
                     </a>
                 </li>
-                <li>
-                    <!-- Ruta corregida y clase activo reubicada aquí -->
+                <li>                    
                     <a href="/venta_directa" class="activo">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa

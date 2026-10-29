@@ -275,7 +275,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/venta_directa">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
                     </a>
