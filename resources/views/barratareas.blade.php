@@ -192,7 +192,7 @@
                 <p>Ingreso de mercancía.</p>
             </a>
 
-            <a href="venta_directa" class="tarjeta-modulo">
+            <a href="/venta_directa" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">shopping_cart</span>
                 </div>
