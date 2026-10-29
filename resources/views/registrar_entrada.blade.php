@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOMBAS GUERRA - Registrar Entrada</title>
+    <title>BOMBAS GUERRA - Venta Directa</title>
     <!-- Iconos de Google Material Symbols con grosor delgado -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0" />
     <style>
+        /* =========================================================
+           ESTILOS BASE (Tomados de Inventario.txt)
+           ========================================================= */
         * {
             margin: 0;
             padding: 0;
@@ -112,125 +115,211 @@
         }
 
         .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
         }
 
         .titulo-pagina h1 {
             color: #002B54;
             font-size: 24px;
-            margin-bottom: 4px;
         }
 
-        .titulo-pagina p {
-            color: #666;
+        /* Tablas base */
+        .contenedor-tabla {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
             font-size: 14px;
         }
 
-        /* Tarjeta Formulario */
-        .card-formulario {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            max-width: 900px;
+        thead tr {
+            background-color: #F4F7F9;
+            color: #444;
+            border-bottom: 2px solid #E0E0E0;
         }
 
-        .form-group {
+        th, td {
+            padding: 14px 18px;
+        }
+
+        .mensaje-vacio {
+            text-align: center;
+            padding: 40px !important;
+            color: #888;
+        }
+
+        /* =========================================================
+           ESTILOS ADICIONALES (Específicos para Venta Directa)
+           ========================================================= */
+        .seccion-titulo {
+            font-size: 16px;
+            color: #002B54;
+            font-weight: bold;
+            padding: 20px 20px 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Buscador integrado */
+        .search-container {
+            position: relative;
+            padding: 15px 20px;
+            background-color: white;
+        }
+
+        .search-container span {
+            position: absolute;
+            left: 32px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-container input:focus {
+            border-color: #003366;
+        }
+
+        /* Resumen de Venta */
+        .resumen-venta {
+            background-color: #002B54;
+            border-radius: 8px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .resumen-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
             margin-bottom: 20px;
         }
 
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: bold;
-            color: #002B54;
-            margin-bottom: 8px;
+        .resumen-header .icono {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #dcdcdc;
-            border-radius: 6px;
+        .resumen-header h3 {
             font-size: 14px;
-            background-color: #f9fbfd;
-            outline: none;
-            transition: border-color 0.2s;
+            margin-bottom: 3px;
         }
 
-        .form-control:focus {
-            border-color: #003366;
-            background-color: #fff;
+        .resumen-header p {
+            font-size: 11px;
+            color: #b0c4de;
         }
 
-        /* Filas con múltiples columnas */
-        .form-row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .resumen-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
 
-        .form-row-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+        .resumen-fila p {
+            color: #b0c4de;
         }
 
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
+        .badge-unidades {
+            background-color: rgba(255, 204, 0, 0.15);
+            color: #FFCC00;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .precio-total {
+            font-size: 32px;
+            color: #FFCC00;
+            font-weight: bold;
+        }
+
+        .precio-total span {
+            font-size: 14px;
+            color: white;
+            font-weight: normal;
         }
 
         /* Botones de acción */
-        .form-actions {
+        .botones-accion {
             display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 25px;
+            gap: 15px;
         }
 
-        .btn-cancelar {
-            background-color: #e0e0e0;
-            color: #444;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px 20px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
             font-weight: bold;
-            text-decoration: none;
-            font-size: 13px;
+            border: none;
+            transition: 0.2s;
         }
 
-        .btn-cancelar:hover {
-            background-color: #d0d0d0;
+        .btn-secundario {
+            background-color: white;
+            color: #666;
+            border: 1px solid #ccc;
+            flex: 1;
         }
 
-        .btn-guardar {
+        .btn-secundario:hover {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .btn-primario {
             background-color: #FFCC00;
-            color: #002347;
-            border: none;
-            padding: 10px 22px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            transition: background-color 0.2s;
+            color: #000;
+            flex: 2;
         }
 
-        .btn-guardar:hover {
+        .btn-primario:hover {
             background-color: #e6b800;
         }
     </style>
 </head>
 <body>
 
-    <!-- Menú Lateral -->
+    <!-- Menú Lateral idéntico al de Inventario.txt pero con rutas actualizadas -->
     <div class="sidebar">
         <div>
-            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
-                <h2>BOMBAS GUERRA</h2>
-                <p>CONTROL DE INVENTARIOS</p>
-            </a>
+           <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
+            <h2>BOMBAS GUERRA</h2>
+            <p>CONTROL DE INVENTARIOS</p>
+           </a>
 
             <ul class="sidebar-menu">
                 <li>
@@ -240,13 +329,14 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/registrar_entrada" class="activo">
+                    <a href="/registrar_entrada">
                         <span class="material-symbols-outlined">move_to_inbox</span>
                         Registrar Entrada
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <!-- Ruta corregida y clase activo reubicada aquí -->
+                    <a href="/venta_directa" class="activo">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
                     </a>
@@ -258,7 +348,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="ordenes_trabajo">
+                    <a href="/ordenes_trabajo">
                         <span class="material-symbols-outlined">build</span>
                         Órdenes de Trabajo
                     </a>
@@ -291,71 +381,98 @@
     <div class="main-content">
         <div class="top-header">
             <div class="titulo-pagina">
-                <h1>Registrar Entrada de Refacción</h1>
-                <p>Ingrese la información detallada del repuesto o bomba hidráulica para ingresarlo al inventario general.</p>
+                <h1>Venta Directa / Carrito de Salidas</h1>
             </div>
         </div>
 
-        <!-- Formulario -->
-        <div class="card-formulario">
-            <form action="#" method="POST">
-                
-                <!-- Nombre de la Refacción -->
-                <div class="form-group">
-                    <label for="nombre">Nombre de la Refacción</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej. Sello Mecánico Silicio 1/2" required>
-                </div>
+        <!-- SECCIÓN 1: Selección de Catálogo usando la misma estructura de tabla -->
+        <div class="contenedor-tabla">
+            <h2 class="seccion-titulo">Selección de Catálogo</h2>
+            
+            <div class="search-container">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Buscar por ID, Nombre, Marca o N° Parte...">
+            </div>
 
-                <!-- Tipo / Categoría (Texto Libre) y Marca -->
-                <div class="form-row-2">
-                    <div class="form-group">
-                        <label for="categoria">Tipo de Pieza / Categoría</label>
-                        <input type="text" id="categoria" name="categoria" class="form-control" placeholder="Ej. Sello, Bomba, Rotor" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="marca">Marca / Fabricante</label>
-                        <input type="text" id="marca" name="marca" class="form-control" placeholder="Ej. Guerra, Pedrollo, York" required>
-                    </div>
-                </div>
-
-                <!-- Precios y Cantidades con min="0" para evitar números negativos -->
-                <div class="form-row-4">
-                    <div class="form-group">
-                        <label for="precio_compra">Precio Compra ($)</label>
-                        <input type="number" step="1" min="0" id="precio_compra" name="precio_compra" class="form-control" placeholder="0.00" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="precio_venta">Precio Venta ($)</label>
-                        <input type="number" step="1" min="0" id="precio_venta" name="precio_venta" class="form-control" placeholder="0.00" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="cantidad">Cantidad a Ingresar</label>
-                        <input type="number" min="1" id="cantidad" name="cantidad" class="form-control" placeholder="1" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="stock_minimo">Stock Mínimo</label>
-                        <input type="number" min="0" id="stock_minimo" name="stock_minimo" class="form-control" placeholder="0" required>
-                    </div>
-                </div>
-
-                <!-- Descripción / Notas -->
-                <div class="form-group">
-                    <label for="descripcion">Descripción / Notas Adicionales</label>
-                    <textarea id="descripcion" name="descripcion" class="form-control" placeholder="Escribe detalles adicionales de la pieza o su aplicación..."></textarea>
-                </div>
-
-                <!-- Botones -->
-                <div class="form-actions">
-                    <a href="/inventario" class="btn-cancelar">Cancelar</a>
-                    <button type="submit" class="btn-guardar">Guardar Entrada</button>
-                </div>
-
-            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref / ID</th>
+                        <th>Refacción / Marca / N° Parte</th>
+                        <th>Precio</th>
+                        <th>Disp.</th>
+                        <th>Añadir al Carrito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" class="mensaje-vacio">
+                            No hay refacciones registradas en el catálogo. Se poblará al conectar con la base de datos.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+
+        <!-- SECCIÓN 2: Carrito de Salida -->
+        <div class="contenedor-tabla">
+            <h2 class="seccion-titulo">Carrito de Salida</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Descripción</th>
+                        <th>P. Un.</th>
+                        <th>Cant.</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="mensaje-vacio">
+                            El carrito está vacío. Selecciona una refacción del catálogo para empezar.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SECCIÓN 3: Resumen de la Venta -->
+        <div class="resumen-venta">
+            <div class="resumen-header">
+                <div class="icono">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                </div>
+                <div>
+                    <h3>ORDEN DE SALIDA</h3>
+                    <p>BOMBAS GUERRA POS</p>
+                </div>
+            </div>
+
+            <div class="resumen-fila">
+                <p>Total de Refacciones</p>
+                <span class="badge-unidades">0 Unidades</span>
+            </div>
+
+            <div class="resumen-fila">
+                <p>Monto Total a Cobrar</p>
+                <div class="precio-total">$0.00 <span>MXN</span></div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="botones-accion">
+            <button class="btn btn-secundario">
+                <span class="material-symbols-outlined">delete</span>
+                Vaciar Carrito
+            </button>
+            <button class="btn btn-primario">
+                <span class="material-symbols-outlined">payments</span>
+                Finalizar Compra
+            </button>
+        </div>
+
     </div>
 
 </body>
