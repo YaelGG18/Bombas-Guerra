@@ -246,6 +246,10 @@
                     </a>
                 </li>
                 <li>
+<<<<<<< HEAD
+=======
+                    <!-- Ruta corregida y clase activo reubicada aquí -->
+>>>>>>> 799ad05cae5255b7903bc7475de01694d650c95e
                     <a href="/venta_directa">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
