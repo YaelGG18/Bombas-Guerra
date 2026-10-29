@@ -208,7 +208,7 @@
                 <p>Presupuestos de reparación y piezas.</p>
             </a>
 
-            <a href="#" class="tarjeta-modulo">
+            <a href="/ordenes_trabajo" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">build</span>
                 </div>

@@ -23,3 +23,7 @@ Route::get('/registrar_entrada', function () {
 Route::get('/cotizaciones', function () {
     return view('cotizaciones');
 });
+
+Route::get('/ordenes_trabajo', function () {
+    return view('ordenes_trabajo');
+});

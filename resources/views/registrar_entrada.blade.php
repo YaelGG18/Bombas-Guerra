@@ -258,7 +258,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="ordenes_trabajo">
                         <span class="material-symbols-outlined">build</span>
                         Órdenes de Trabajo
                     </a>

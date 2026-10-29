@@ -295,7 +295,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/ordenes_trabajo">
                         <span class="material-symbols-outlined">build</span>
                         Órdenes de Trabajo
                     </a>
@@ -417,7 +417,7 @@
 
                     <button class="btn-aprobar">
                         <span class="material-symbols-outlined">check_circle</span>
-                        Guardar Cotización
+                        Aprobar cotización y crear orden de trabajo
                     </button>
                 </div>
             </div>
