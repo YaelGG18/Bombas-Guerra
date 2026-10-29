@@ -240,7 +240,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/registrar-entrada" class="activo">
+                    <a href="/registrar_entrada" class="activo">
                         <span class="material-symbols-outlined">move_to_inbox</span>
                         Registrar Entrada
                     </a>
