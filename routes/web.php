@@ -27,3 +27,7 @@ Route::get('/cotizaciones', function () {
 Route::get('/ordenes_trabajo', function () {
     return view('ordenes_trabajo');
 });
+
+Route::get('/venta_directa', function () {
+    return view('venta_directa');
+});
