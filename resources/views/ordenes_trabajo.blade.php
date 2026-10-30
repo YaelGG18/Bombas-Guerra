@@ -293,7 +293,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/garantías">
                         <span class="material-symbols-outlined">verified_user</span>
                         Garantías
                     </a>
