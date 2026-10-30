@@ -31,3 +31,7 @@ Route::get('/ordenes_trabajo', function () {
 Route::get('/venta_directa', function () {
     return view('venta_directa');
 });
+
+Route::get('/garantias', function () {
+    return view('garantias');
+});
