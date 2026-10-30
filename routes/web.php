@@ -35,3 +35,7 @@ Route::get('/venta_directa', function () {
 Route::get('/garantias', function () {
     return view('garantias');
 });
+
+Route::get('/historial_movimientos', function () {
+    return view('historial_movimientos');
+});
