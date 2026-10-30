@@ -217,7 +217,7 @@
     <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-            <a href="/dashboard" class="sidebar-header" title="Volver al Dashboard">
+            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>

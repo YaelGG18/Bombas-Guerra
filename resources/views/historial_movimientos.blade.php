@@ -303,7 +303,7 @@
     <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-            <a href="/dashboard" class="sidebar-header" title="Volver al Dashboard">
+            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>
@@ -316,7 +316,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/registrar-entrada">
+                    <a href="/registrar_entrada">
                         <span class="material-symbols-outlined">move_to_inbox</span>
                         Registrar Entrada
                     </a>

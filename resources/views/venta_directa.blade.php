@@ -7,14 +7,16 @@
     <!-- Iconos de Google Material Symbols con grosor delgado -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0" />
     <style>
-        /* =========================================================
-           ESTILOS BASE (Tomados de Inventario.txt)
-           ========================================================= */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            overflow-x: hidden;
         }
 
         body {
@@ -23,7 +25,7 @@
             display: flex;
         }
 
-        /* Menú Lateral (Sidebar) */
+        /* Menú Lateral */
         .sidebar {
             width: 260px;
             background-color: #002347;
@@ -32,6 +34,7 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 100vh;
+            flex-shrink: 0;
         }
 
         .sidebar-header {
@@ -108,65 +111,38 @@
             color: #4CAF50;
         }
 
-        /* Contenido Principal */
+        /* Contenido Principal con flex adecuado */
         .main-content {
-            flex-grow: 1;
+            flex: 1;
+            min-width: 0; /* Previene que las tablas expandan el contenedor */
             padding: 30px;
         }
 
         .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 25px;
         }
 
         .titulo-pagina h1 {
             color: #002B54;
             font-size: 24px;
+            margin-bottom: 4px;
         }
 
-        /* Tablas base */
+        /* Contenedores de Tablas con Scroll Interno si es necesario */
         .contenedor-tabla {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            overflow: hidden;
+            overflow-x: auto;
             margin-bottom: 25px;
-        }
-
-        table {
             width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
         }
 
-        thead tr {
-            background-color: #F4F7F9;
-            color: #444;
-            border-bottom: 2px solid #E0E0E0;
-        }
-
-        th, td {
-            padding: 14px 18px;
-        }
-
-        .mensaje-vacio {
-            text-align: center;
-            padding: 40px !important;
-            color: #888;
-        }
-
-        /* =========================================================
-           ESTILOS ADICIONALES (Específicos para Venta Directa)
-           ========================================================= */
         .seccion-titulo {
             font-size: 16px;
             color: #002B54;
             font-weight: bold;
-            padding: 20px 20px 15px 20px;
-            background-color: white;
+            padding: 20px;
             border-bottom: 1px solid #f0f0f0;
         }
 
@@ -194,9 +170,28 @@
             font-size: 14px;
             outline: none;
         }
-        
-        .search-container input:focus {
-            border-color: #003366;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        thead tr {
+            background-color: #F4F7F9;
+            color: #444;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        th, td {
+            padding: 14px 18px;
+        }
+
+        .mensaje-vacio {
+            text-align: center;
+            padding: 40px !important;
+            color: #888;
         }
 
         /* Resumen de Venta */
@@ -207,6 +202,7 @@
             color: white;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            width: 100%;
         }
 
         .resumen-header {
@@ -313,13 +309,13 @@
 </head>
 <body>
 
-    <!-- Menú Lateral idéntico al de Inventario.txt pero con rutas actualizadas -->
+    <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-           <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
-            <h2>BOMBAS GUERRA</h2>
-            <p>CONTROL DE INVENTARIOS</p>
-           </a>
+            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
+                <h2>BOMBAS GUERRA</h2>
+                <p>CONTROL DE INVENTARIOS</p>
+            </a>
 
             <ul class="sidebar-menu">
                 <li>
@@ -334,7 +330,7 @@
                         Registrar Entrada
                     </a>
                 </li>
-                <li>                    
+                <li>
                     <a href="/venta_directa" class="activo">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
@@ -367,7 +363,7 @@
             </ul>
         </div>
 
-        <a href="/" class="sidebar-footer" title="Cerrar Sesión / Volver al Login">
+        <a href="/" class="sidebar-footer" title="Cerrar Sesión">
             <span class="material-symbols-outlined icono-admin">account_circle</span>
             <div class="info-admin">
                 <strong>Admin Taller</strong>
@@ -384,15 +380,13 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 1: Selección de Catálogo usando la misma estructura de tabla -->
+        <!-- Selección de Catálogo -->
         <div class="contenedor-tabla">
-            <h2 class="seccion-titulo">Selección de Catálogo</h2>
-            
+            <div class="seccion-titulo">Selección de Catálogo</div>
             <div class="search-container">
                 <span class="material-symbols-outlined">search</span>
                 <input type="text" placeholder="Buscar por ID, Nombre, Marca o N° Parte...">
             </div>
-
             <table>
                 <thead>
                     <tr>
@@ -413,9 +407,9 @@
             </table>
         </div>
 
-        <!-- SECCIÓN 2: Carrito de Salida -->
+        <!-- Carrito de Salida -->
         <div class="contenedor-tabla">
-            <h2 class="seccion-titulo">Carrito de Salida</h2>
+            <div class="seccion-titulo">Carrito de Salida</div>
             <table>
                 <thead>
                     <tr>
@@ -437,7 +431,7 @@
             </table>
         </div>
 
-        <!-- SECCIÓN 3: Resumen de la Venta -->
+        <!-- Resumen de Orden -->
         <div class="resumen-venta">
             <div class="resumen-header">
                 <div class="icono">
@@ -458,20 +452,16 @@
                 <p>Monto Total a Cobrar</p>
                 <div class="precio-total">$0.00 <span>MXN</span></div>
             </div>
-        </div>
 
-        <!-- Botones de Acción -->
-        <div class="botones-accion">
-            <button class="btn btn-secundario">
-                <span class="material-symbols-outlined">delete</span>
-                Vaciar Carrito
-            </button>
-            <button class="btn btn-primario">
-                <span class="material-symbols-outlined">payments</span>
-                Finalizar Compra
-            </button>
+            <div class="botones-accion">
+                <button class="btn btn-secundario">
+                    <span class="material-symbols-outlined">delete</span> Vaciar carrito
+                </button>
+                <button class="btn btn-primario">
+                    <span class="material-symbols-outlined">check_circle</span> Finalizar compra
+                </button>
+            </div>
         </div>
-
     </div>
 
 </body>

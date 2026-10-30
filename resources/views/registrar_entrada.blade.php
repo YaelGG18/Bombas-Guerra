@@ -29,6 +29,7 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 100vh;
+            flex-shrink: 0;
         }
 
         .sidebar-header {
@@ -109,6 +110,7 @@
         .main-content {
             flex-grow: 1;
             padding: 30px;
+            width: calc(100% - 260px);
         }
 
         .top-header {
@@ -126,13 +128,13 @@
             font-size: 14px;
         }
 
-        /* Tarjeta Formulario */
+        /* Tarjeta Formulario Responsive (Aprovecha el 100% del ancho) */
         .card-formulario {
             background-color: white;
             border-radius: 10px;
             padding: 30px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            max-width: 900px;
+            width: 100%;
         }
 
         .form-group {
@@ -166,7 +168,7 @@
         /* Filas con múltiples columnas */
         .form-row-2 {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
         }
 
@@ -220,6 +222,22 @@
         .btn-guardar:hover {
             background-color: #e6b800;
         }
+
+        /* Adaptabilidad (Media Queries) */
+        @media (max-width: 992px) {
+            .form-row-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-row-2, .form-row-4 {
+                grid-template-columns: 1fr;
+            }
+            .main-content {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -246,7 +264,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/venta_directa">
+                    <a href="venta_directa">
                         <span class="material-symbols-outlined">shopping_cart</span>
                         Venta Directa
                     </a>
@@ -258,7 +276,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="ordenes_trabajo">
+                    <a href="/ordenes_trabajo">
                         <span class="material-symbols-outlined">build</span>
                         Órdenes de Trabajo
                     </a>
@@ -296,7 +314,7 @@
             </div>
         </div>
 
-        <!-- Formulario -->
+        <!-- Formulario Responsive -->
         <div class="card-formulario">
             <form action="#" method="POST">
                 
@@ -306,7 +324,7 @@
                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej. Sello Mecánico Silicio 1/2" required>
                 </div>
 
-                <!-- Tipo / Categoría (Texto Libre) y Marca -->
+                <!-- Tipo / Categoría y Marca -->
                 <div class="form-row-2">
                     <div class="form-group">
                         <label for="categoria">Tipo de Pieza / Categoría</label>
@@ -319,16 +337,16 @@
                     </div>
                 </div>
 
-                <!-- Precios y Cantidades con min="0" para evitar números negativos -->
+                <!-- Precios y Cantidades -->
                 <div class="form-row-4">
                     <div class="form-group">
                         <label for="precio_compra">Precio Compra ($)</label>
-                        <input type="number" step="1" min="0" id="precio_compra" name="precio_compra" class="form-control" placeholder="0.00" required>
+                        <input type="number" step="0.01" min="0" id="precio_compra" name="precio_compra" class="form-control" placeholder="0.00" required>
                     </div>
 
                     <div class="form-group">
                         <label for="precio_venta">Precio Venta ($)</label>
-                        <input type="number" step="1" min="0" id="precio_venta" name="precio_venta" class="form-control" placeholder="0.00" required>
+                        <input type="number" step="0.01" min="0" id="precio_venta" name="precio_venta" class="form-control" placeholder="0.00" required>
                     </div>
 
                     <div class="form-group">
