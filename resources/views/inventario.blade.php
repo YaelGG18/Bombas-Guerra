@@ -307,11 +307,26 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($refacciones as $refaccion)
                     <tr>
-                        <td colspan="9" class="mensaje-vacio">
-                            No hay refacciones registradas en el inventario. Se poblará al conectar con la base de datos.
+                        <td><strong>#{{ $refaccion->id }}</strong></td>
+                        <td>{{ $refaccion->nombre }}</td>
+                        <td>{{ $refaccion->categoria }}</td>
+                        <td>{{ $refaccion->marca }}</td>
+                        <td>${{ number_format($refaccion->precio_compra, 2) }}</td>
+                        <td>${{ number_format($refaccion->precio_venta, 2) }}</td>
+                        <td><strong>{{ $refaccion->stock }}</strong> pzas</td>
+                        <td>
+                            <span class="status status-vigente">● DISPONIBLE</span>
+                        </td>
+                     </tr>
+                   @empty 
+                     <tr>
+                        <td colspan="8" class="mensaje-vacio">
+                         No hay refacciones registradas en el inventario. Ingresa una nueva desde el módulo "Registrar Entrada".
                         </td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
 

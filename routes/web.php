@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RefaccionController;
 
 // Ruta del Login (Pantalla Principal)
 Route::get('/', function () {
@@ -12,14 +13,16 @@ Route::get('/barratareas', function () {
     return view('barratareas');
 });
 
-Route::get('/inventario', function () {
-    return view('inventario');
-});
+// INVENTARIO: Consulta las refacciones guardadas en MySQL
+Route::get('/inventario', [RefaccionController::class, 'index']);
 
+// REGISTRAR ENTRADA: Muestra la vista y recibe el formulario
 Route::get('/registrar_entrada', function () {
     return view('registrar_entrada');
 });
+Route::post('/registrar_entrada', [RefaccionController::class, 'store']);
 
+// Demás módulos del taller
 Route::get('/cotizaciones', function () {
     return view('cotizaciones');
 });

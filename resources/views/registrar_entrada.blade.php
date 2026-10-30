@@ -316,7 +316,8 @@
 
         <!-- Formulario Responsive -->
         <div class="card-formulario">
-            <form action="#" method="POST">
+           <form action="/registrar_entrada" method="POST">
+             @csrf
                 
                 <!-- Nombre de la Refacción -->
                 <div class="form-group">
