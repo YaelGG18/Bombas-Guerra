@@ -7,9 +7,6 @@
     <!-- Iconos de Google Material Symbols -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0" />
     <style>
-        /* =========================================================
-           ESTILOS BASE
-           ========================================================= */
         * {
             margin: 0;
             padding: 0;
@@ -32,9 +29,6 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
         }
 
         .sidebar-header {
@@ -94,6 +88,10 @@
             color: white;
         }
 
+        .sidebar-footer:hover {
+            background-color: #001026;
+        }
+
         .sidebar-footer .icono-admin {
             color: #FFCC00;
             font-size: 32px;
@@ -113,7 +111,6 @@
         .main-content {
             flex-grow: 1;
             padding: 30px;
-            margin-left: 260px;
         }
 
         .top-header {
@@ -131,9 +128,7 @@
             font-size: 14px;
         }
 
-        /* =========================================================
-           PESTAÑAS (TABS)
-           ========================================================= */
+        /* Pestañas (Tabs) */
         .tabs-container {
             display: flex;
             gap: 30px;
@@ -173,9 +168,7 @@
             color: #FFCC00;
         }
 
-        /* =========================================================
-           FILTROS
-           ========================================================= */
+        /* Filtros */
         .filtros-grid {
             display: grid;
             grid-template-columns: 200px 200px 1fr;
@@ -220,26 +213,25 @@
             font-size: 18px;
         }
 
-        /* =========================================================
-           TABLAS
-           ========================================================= */
+        /* Tablas */
         .contenedor-tabla {
             background-color: white;
-            border-radius: 8px 8px 0 0;
+            border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         thead tr {
             background-color: #F4F7F9;
-            color: #777;
+            color: #555;
             border-bottom: 1px solid #E0E0E0;
         }
 
@@ -247,7 +239,7 @@
             font-weight: bold;
             padding: 12px 20px;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 11px;
             letter-spacing: 0.5px;
         }
 
@@ -257,162 +249,10 @@
             color: #333;
         }
 
-        /* Fila seleccionada */
-        tr.seleccionada {
-            background-color: #FFF9C4 !important; /* Amarillo muy pálido */
-        }
-
-        /* Etiquetas de estado */
-        .status {
-            font-weight: bold;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            text-transform: uppercase;
-        }
-        .status-vigente { color: #27ae60; }
-        .status-entregado { color: #2980b9; }
-        .status-cancelado { color: #c0392b; }
-
-        /* =========================================================
-           PANEL DE DETALLES INFERIOR
-           ========================================================= */
-        .detalle-expediente {
-            background-color: #F9FAFC;
-            border: 1px solid #E0E0E0;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            padding: 25px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 30px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-        }
-
-        .detalle-info {
-            flex: 2;
-        }
-
-        .detalle-certificado {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .badge-preview {
-            background-color: #002B54;
-            color: #FFCC00;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            text-transform: uppercase;
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        .detalle-titulo {
-            font-size: 16px;
-            color: #002B54;
-            font-weight: bold;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .seccion-texto {
-            margin-bottom: 15px;
-        }
-
-        .seccion-texto h4 {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .seccion-texto p, .seccion-texto ul {
-            font-size: 12px;
-            color: #444;
-            line-height: 1.5;
-        }
-
-        .seccion-texto ul {
-            padding-left: 20px;
-            list-style-type: none;
-        }
-        
-        .seccion-texto ul li::before {
-            content: "•";
-            color: #002B54;
-            font-weight: bold;
-            display: inline-block; 
-            width: 1em;
-            margin-left: -1em;
-        }
-
-        .grid-costos {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 15px;
-        }
-
-        .valor-destacado {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000;
-        }
-
-        /* Tarjeta del Sello */
-        .caja-sello {
-            background-color: white;
-            border: 1px solid #FFCC00;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: left;
-        }
-
-        .sello-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .sello-header .icono-escudo {
-            background-color: #002B54;
-            color: #FFCC00;
-            padding: 6px;
-            border-radius: 6px;
-            display: flex;
-        }
-
-        .sello-header h4 {
-            font-size: 12px;
-            color: #002B54;
-        }
-
-        .codigo-caja {
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            padding: 12px;
-            border-radius: 6px;
+        .mensaje-vacio {
             text-align: center;
-        }
-
-        .codigo-caja p {
-            font-size: 9px;
+            padding: 40px !important;
             color: #888;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-
-        .codigo-caja h3 {
-            font-size: 15px;
-            color: #002B54;
-            letter-spacing: 1px;
         }
 
         /* Footer de la página */
@@ -463,7 +303,7 @@
     <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
+            <a href="/dashboard" class="sidebar-header" title="Volver al Dashboard">
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>
@@ -472,11 +312,11 @@
                 <li>
                     <a href="/inventario">
                         <span class="material-symbols-outlined">inventory_2</span>
-                        Inventario General
+                        Inventario
                     </a>
                 </li>
                 <li>
-                    <a href="/registrar_entrada">
+                    <a href="/registrar-entrada">
                         <span class="material-symbols-outlined">move_to_inbox</span>
                         Registrar Entrada
                     </a>
@@ -490,7 +330,13 @@
                 <li>
                     <a href="/cotizaciones">
                         <span class="material-symbols-outlined">request_quote</span>
-                        Cotizaciones y OT
+                        Cotizaciones
+                    </a>
+                </li>
+                <li>
+                    <a href="/ordenes_trabajo">
+                        <span class="material-symbols-outlined">build</span>
+                        Órdenes de Trabajo
                     </a>
                 </li>
                 <li>
@@ -500,15 +346,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/reportes" class="activo">
+                    <a href="/historial_movimientos" class="activo">
                         <span class="material-symbols-outlined">bar_chart</span>
-                        Reportes
+                        Historial y Reportes
                     </a>
                 </li>
             </ul>
         </div>
 
-        <a href="/" class="sidebar-footer">
+        <a href="/" class="sidebar-footer" title="Cerrar Sesión">
             <span class="material-symbols-outlined icono-admin">account_circle</span>
             <div class="info-admin">
                 <strong>Admin Taller</strong>
@@ -542,13 +388,13 @@
             <div class="form-group">
                 <label>Fecha Inicio</label>
                 <div class="input-contenedor">
-                    <input type="date" value="2026-01-01">
+                    <input type="date">
                 </div>
             </div>
             <div class="form-group">
                 <label>Fecha Fin</label>
                 <div class="input-contenedor">
-                    <input type="date" value="2026-01-31">
+                    <input type="date">
                 </div>
             </div>
             <div class="form-group">
@@ -560,11 +406,8 @@
             </div>
         </div>
 
-        <!-- ==========================================
-             TAB 1: ÓRDENES DE TRABAJO
-             ========================================== -->
+        <!-- TAB 1: ÓRDENES DE TRABAJO -->
         <div id="tab-ot" class="contenido-tab activo">
-            
             <div class="contenedor-tabla">
                 <table>
                     <thead>
@@ -579,102 +422,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="seleccionada">
-                            <td><strong>OT-2026-042</strong></td>
-                            <td>15 Ene 2026</td>
-                            <td>Agrícola El Milagro S.A.</td>
-                            <td>$535.00</td>
-                            <td>$150.00</td>
-                            <td><strong>$685.00</strong></td>
-                            <td><span class="status status-vigente">● VIGENTE</span></td>
-                        </tr>
                         <tr>
-                            <td><strong>OT-2026-041</strong></td>
-                            <td>12 Ene 2026</td>
-                            <td>Sistemas de Riego Bajío</td>
-                            <td>$420.00</td>
-                            <td>$120.00</td>
-                            <td><strong>$540.00</strong></td>
-                            <td><span class="status status-entregado">● ENTREGADO</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>OT-2026-040</strong></td>
-                            <td>08 Ene 2026</td>
-                            <td>Constructora Del Norte</td>
-                            <td>$850.00</td>
-                            <td>$250.00</td>
-                            <td><strong>$1100.00</strong></td>
-                            <td><span class="status status-entregado">● ENTREGADO</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>OT-2026-039</strong></td>
-                            <td>05 Ene 2026</td>
-                            <td>Minera Sierra Gorda</td>
-                            <td>$180.00</td>
-                            <td>$80.00</td>
-                            <td><strong>$260.00</strong></td>
-                            <td><span class="status status-cancelado">● CANCELADO</span></td>
+                            <td colspan="7" class="mensaje-vacio">
+                                No se encontraron registros de órdenes de trabajo finalizadas en el período seleccionado.
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <!-- Panel de Detalles OT -->
-            <div class="detalle-expediente">
-                <div class="detalle-info">
-                    <div class="detalle-titulo">
-                        <span class="badge-preview">VISTA PREVIA DE EXPEDIENTE</span>
-                        Detalle Técnico del Servicio: OT-2026-042
-                    </div>
-
-                    <div class="seccion-texto">
-                        <h4>DIAGNÓSTICO TÉCNICO OFICIAL</h4>
-                        <p>Bomba sumergible de pozos profundos presenta sobrecalentamiento y pérdida de presión en régimen continuo. Se detecta daño por cavitación en rodete y desgaste excesivo en sellos mecánicos.</p>
-                    </div>
-
-                    <div class="seccion-texto">
-                        <h4>DESGLOSE DE REFACCIONES UTILIZADAS</h4>
-                        <ul>
-                            <li>1x Rodete de Bronce Fundido B-62 ($350.00)</li>
-                            <li>2x Sello Mecánico de Silicio 1.5" ($170.00)</li>
-                            <li>1x O-Ring de Vitón Kit ($15.00)</li>
-                        </ul>
-                    </div>
-
-                    <div class="grid-costos">
-                        <div class="seccion-texto">
-                            <h4>COSTO MANO DE OBRA</h4>
-                            <p class="valor-destacado">$150.00 MXN</p>
-                        </div>
-                        <div class="seccion-texto">
-                            <h4>SELLO DE COBERTURA DE GARANTÍA ACTIVA</h4>
-                            <p class="valor-destacado">Garantía Taller: 90 Días Válida (Hasta 15 Abr 2026)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detalle-certificado">
-                    <div class="caja-sello">
-                        <div class="sello-header">
-                            <div class="icono-escudo">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">shield</span>
-                            </div>
-                            <h4>Sello de Seguridad OT<br><span style="font-size:9px; color:#888; font-weight:normal;">CÓDIGO ANTIFALSIFICACIÓN</span></h4>
-                        </div>
-                        <div class="codigo-caja">
-                            <p>CÓDIGO GARANTÍA OFICIAL</p>
-                            <h3>BG-8A92-F92B-2026</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- ==========================================
-             TAB 2: VENTAS DIRECTAS
-             ========================================== -->
+        <!-- TAB 2: VENTAS DIRECTAS -->
         <div id="tab-ventas" class="contenido-tab">
-            
             <div class="contenedor-tabla">
                 <table>
                     <thead>
@@ -689,70 +448,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="seleccionada">
-                            <td><strong>TK-99215</strong></td>
-                            <td>15 Ene 2026</td>
-                            <td>Público en General</td>
-                            <td>3 Pzas</td>
-                            <td>$0.00</td>
-                            <td><strong>$385.00</strong></td>
-                            <td><span class="status status-entregado">● PAGADO</span></td>
-                        </tr>
                         <tr>
-                            <td><strong>TK-99214</strong></td>
-                            <td>14 Ene 2026</td>
-                            <td>Taller Mecánico Hernández</td>
-                            <td>1 Pza</td>
-                            <td>$20.00</td>
-                            <td><strong>$1,450.00</strong></td>
-                            <td><span class="status status-entregado">● PAGADO</span></td>
+                            <td colspan="7" class="mensaje-vacio">
+                                No se encontraron ventas directas registradas en el período seleccionado.
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <!-- Panel de Detalles Ventas -->
-            <div class="detalle-expediente">
-                <div class="detalle-info">
-                    <div class="detalle-titulo">
-                        <span class="badge-preview">TICKET DE VENTA</span>
-                        Resumen de Venta Directa: TK-99215
-                    </div>
-
-                    <div class="seccion-texto">
-                        <h4>ARTÍCULOS VENDIDOS</h4>
-                        <ul>
-                            <li>2x Balero SKF 6305-2RS ($240.00)</li>
-                            <li>1x Capacitador de Arranque 200uF ($145.00)</li>
-                        </ul>
-                    </div>
-
-                    <div class="grid-costos">
-                        <div class="seccion-texto">
-                            <h4>TIPO DE PAGO</h4>
-                            <p class="valor-destacado">Tarjeta de Débito</p>
-                        </div>
-                        <div class="seccion-texto">
-                            <h4>GARANTÍA APLICABLE</h4>
-                            <p class="valor-destacado">30 Días (Defecto de Fábrica)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detalle-certificado">
-                    <div class="caja-sello">
-                        <div class="sello-header">
-                            <div class="icono-escudo">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">receipt_long</span>
-                            </div>
-                            <h4>Comprobante de Venta<br><span style="font-size:9px; color:#888; font-weight:normal;">FOLIO INTERNO</span></h4>
-                        </div>
-                        <div class="codigo-caja">
-                            <p>TICKET REGISTRADO</p>
-                            <h3>TK-99215-2026</h3>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -770,17 +472,14 @@
     <!-- Script para cambiar entre pestañas -->
     <script>
         function cambiarTab(tab) {
-            // Quitar clase activo de todos los botones y contenidos
             document.getElementById('btn-tab-ot').classList.remove('activo');
             document.getElementById('btn-tab-ventas').classList.remove('activo');
             document.getElementById('tab-ot').classList.remove('activo');
             document.getElementById('tab-ventas').classList.remove('activo');
 
-            // Agregar clase activo al seleccionado
             document.getElementById('btn-tab-' + tab).classList.add('activo');
             document.getElementById('tab-' + tab).classList.add('activo');
 
-            // Cambiar el texto del botón de exportar según la pestaña[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)
             const btnTexto = document.querySelector('#btn-accion-exportar span:last-child');
             if (tab === 'ot') {
                 btnTexto.textContent = 'Exportar OT a PDF';

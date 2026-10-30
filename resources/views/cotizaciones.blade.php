@@ -301,13 +301,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/garantías">
+                    <a href="/garantias">
                         <span class="material-symbols-outlined">verified_user</span>
                         Garantías
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/historial_movimientos">
                         <span class="material-symbols-outlined">bar_chart</span>
                         Historial y Reportes
                     </a>

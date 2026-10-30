@@ -216,7 +216,7 @@
                 <p>Reparaciones y trabajos activos en taller.</p>
             </a>
 
-            <a href="/garantías" class="tarjeta-modulo">
+            <a href="/garantias" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">verified_user</span>
                 </div>
@@ -224,7 +224,7 @@
                 <p>Registro de reclamos y devoluciones.</p>
             </a>
 
-            <a href="/historial_movimiento" class="tarjeta-modulo">
+            <a href="/historial_movimientos" class="tarjeta-modulo">
                 <div class="icono-tarjeta">
                     <span class="material-symbols-outlined">bar_chart</span>
                 </div>
