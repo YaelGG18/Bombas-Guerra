@@ -42,3 +42,7 @@ Route::get('/garantias', function () {
 Route::get('/historial_movimientos', function () {
     return view('historial_movimientos');
 });
+
+Route::put('/refacciones/{id}', [RefaccionController::class, 'update']);
+
+Route::delete('/refacciones/{id}', [RefaccionController::class, 'destroy']);
