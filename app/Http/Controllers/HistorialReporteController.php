@@ -12,7 +12,6 @@ class HistorialReporteController extends Controller
         $search = $request->input('search');
         $tabActiva = $request->input('tab', 'ot');
         
-        // Capturar los valores de los filtros de fecha por si vienen en la URL
         $fechaInicio = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
 
@@ -23,7 +22,13 @@ class HistorialReporteController extends Controller
                 'orden_trabajo.*', 
                 'cliente.nombreCliente',
                 'cliente.telefono'
-            );
+            )
+            // Agregamos la subconsulta para calcular el total de las refacciones de esta OT
+            ->addSelect([
+                'refaccionesTotal' => DB::table('detalle_ot')
+                    ->whereColumn('detalle_ot.idOT', 'orden_trabajo.idOT')
+                    ->selectRaw('COALESCE(SUM(cantidad * precioUnitarioHistorico), 0)')
+            ]);
 
         if ($search) {
             $queryOT->where(function($q) use ($search) {
@@ -32,7 +37,6 @@ class HistorialReporteController extends Controller
             });
         }
 
-        // Aplicar filtro de fechas si el usuario las seleccionó
         if ($fechaInicio && $fechaFin) {
             $queryOT->whereBetween('orden_trabajo.fechaCreacion', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
         }
@@ -61,7 +65,6 @@ class HistorialReporteController extends Controller
         
         $ventas = $queryVentas->get();
 
-        // Enviamos todas las variables necesarias a la vista (incluyendo las fechas y la pestaña activa)
-    return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin', 'search'));
-        }
+        return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin', 'search'));
+    }
 }
