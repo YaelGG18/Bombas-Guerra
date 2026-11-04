@@ -23,7 +23,6 @@ class HistorialReporteController extends Controller
                 'cliente.nombreCliente',
                 'cliente.telefono'
             )
-            // Agregamos la subconsulta para calcular el total de las refacciones de esta OT
             ->addSelect([
                 'refaccionesTotal' => DB::table('detalle_ot')
                     ->whereColumn('detalle_ot.idOT', 'orden_trabajo.idOT')
@@ -42,6 +41,11 @@ class HistorialReporteController extends Controller
         }
         
         $ordenes = $queryOT->get();
+
+        // Calculamos el Total General para cada Orden de Trabajo
+        foreach ($ordenes as $orden) {
+            $orden->totalGeneral = $orden->costoManoObra + $orden->refaccionesTotal;
+        }
 
         // 2. Consultar Historial de Ventas Directas
         $queryVentas = DB::table('venta_directa')
@@ -64,6 +68,13 @@ class HistorialReporteController extends Controller
         }
         
         $ventas = $queryVentas->get();
+
+        // Agregamos variables de respaldo para Ventas Directas 
+        // (Previene errores si tu vista también pide estos datos en la pestaña de ventas)
+        foreach ($ventas as $venta) {
+            $venta->totalGeneral = 0; // Sustituir por la consulta real a detalle_venta si la creas luego
+            $venta->cantidadArticulos = 0; 
+        }
 
         return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin', 'search'));
     }
