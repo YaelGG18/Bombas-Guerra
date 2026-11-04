@@ -9,9 +9,12 @@ class OrdenTrabajo extends Model
 {
     use HasFactory;
 
+    // Nombre exacto de tu tabla en la BD
     protected $table = 'ordentrabajo';
     
-    // Campos que se pueden llenar masivamente
+    // Desactivar timestamps si tu tabla no tiene created_at y updated_at
+    public $timestamps = false; 
+    
     protected $fillable = [
         'idCliente', 
         'falla', 
@@ -19,10 +22,4 @@ class OrdenTrabajo extends Model
         'estado', 
         'fecha'
     ];
-
-    // Relación con los detalles (1 a muchos)
-    public function detalles()
-    {
-        return $this->hasMany(DetalleOT::class, 'idOT');
-    }
 }
