@@ -4,77 +4,53 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class GarantiaController extends Controller
 {
-    public function index(Request $request)
+    // Muestra la vista inicial con el buscador vacío
+    public function index()
     {
-        $fechaInicio = $request->input('fecha_inicio');
-        $fechaFin    = $request->input('fecha_fin');
-        $search      = $request->input('search');
-        $tabActiva   = $request->input('tab', 'ot');
+        return view('garantias'); 
+    }
 
-        // Si no hay filtros de fecha ni búsqueda, las listas arrancan vacías
-        if (!$fechaInicio && !$fechaFin && !$search) {
-            $ordenes = collect();
-            $ventas  = collect();
-            return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
-        }
+    // Procesa la búsqueda del código de garantía
+    public function buscar(Request $request)
+    {
+        // 1. Validar que el usuario escribió algo
+        $request->validate([
+            'codigo_garantia' => 'required|string|max:50'
+        ], [
+            'codigo_garantia.required' => 'Debe ingresar un código para buscar.'
+        ]);
 
-        // --- 1. CONSULTA DE ÓRDENES DE TRABAJO ---
-        $queryOT = DB::table('orden_trabajo')
-            ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-            ->select(
-                'orden_trabajo.*',
-                'cliente.nombreCliente',
-                'cliente.telefono'
-            );
+        $codigo = $request->input('codigo_garantia');
 
-        if ($fechaInicio) {
-            $queryOT->whereDate('orden_trabajo.fechaCreacion', '>=', $fechaInicio);
-        }
-        if ($fechaFin) {
-            $queryOT->whereDate('orden_trabajo.fechaCreacion', '<=', $fechaFin);
-        }
-        if ($search) {
-            $queryOT->where(function($q) use ($search) {
-                $q->where('orden_trabajo.folioOT', 'LIKE', "%{$search}%")
-                  ->orWhere('cliente.nombreCliente', 'LIKE', "%{$search}%")
-                  ->orWhere('orden_trabajo.diagnosticoFalla', 'LIKE', "%{$search}%");
-            });
-        }
-
-        $ordenes = $queryOT->orderBy('orden_trabajo.fechaCreacion', 'desc')->get();
-
-        foreach ($ordenes as $ot) {
-            $detalles = DB::table('detalle_ot')->where('idOT', $ot->idOT)->get();
-            $subtotalRefacciones = $detalles->sum(fn($item) => $item->cantidad * $item->precioUnitarioHistorico);
-            $ot->refaccionesTotal = $subtotalRefacciones;
-            $ot->totalGeneral     = $subtotalRefacciones + $ot->costoManoObra;
-        }
-
-        // --- 2. CONSULTA DE VENTAS DIRECTAS ---
-        $ventas = collect();
         try {
-            $queryVentas = DB::table('venta_directa');
+            // 2. Consulta a la base de datos usando las tablas reales de tu imagen
+            $resultado = DB::table('garantia') // Tu tabla en BD se llama "garantia" (singular)
+                ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.id') // Tabla "orden_trabajo"
+                ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id') // Tabla "cliente"
+                ->where('garantia.codigo_unico', $codigo) // *Verifica que tu columna se llame 'codigo_unico'
+                ->select(
+                    'garantia.*', 
+                    'orden_trabajo.falla',
+                    'orden_trabajo.fecha as fecha_reparacion',
+                    'cliente.nombre as nombre_cliente' // Traemos el nombre del cliente
+                )
+                ->first();
 
-            if ($fechaInicio) {
-                $queryVentas->whereDate('created_at', '>=', $fechaInicio);
+            // 3. Evaluar si existe
+            if ($resultado) {
+                // Si la encuentra, recarga la vista pasándole los datos de la garantía
+                return view('garantias', compact('resultado'));
+            } else {
+                // Si no existe, retorna a la pantalla anterior con un mensaje de error
+                return redirect()->back()->with('error', 'Código de garantía "' . $codigo . '" no encontrado o no es válido.');
             }
-            if ($fechaFin) {
-                $queryVentas->whereDate('created_at', '<=', $fechaFin);
-            }
-            if ($search) {
-                $queryVentas->where(function($q) use ($search) {
-                    $q->where('folioTicket', 'LIKE', "%{$search}%")
-                      ->orWhere('clienteMostrador', 'LIKE', "%{$search}%");
-                });
-            }
-            $ventas = $queryVentas->orderBy('idVenta', 'desc')->get();
-        } catch (\Exception $e) {
-            // Excepción silenciosa si ocurriera
+
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Error del sistema: ' . $e->getMessage());
         }
-
-        return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
     }
 }
