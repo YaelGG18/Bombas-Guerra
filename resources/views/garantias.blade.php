@@ -29,7 +29,7 @@
         .titulo-pagina p { color: #666; font-size: 14px; }
 
         /* Tarjetas de Estadísticas */
-        .grid-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; max-width: 500px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; max-width: 750px; }
         .card-stat { background-color: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
         .card-stat .numero { font-size: 28px; font-weight: bold; color: #002B54; }
         .card-stat .label h4 { font-size: 13px; color: #333; }
@@ -49,10 +49,14 @@
         .mensaje-vacio { text-align: center; padding: 40px !important; color: #888; }
         .footer-tabla { padding: 15px 20px; background-color: #F4F7F9; color: #666; font-size: 12px; border-top: 1px solid #E0E0E0; display: flex; justify-content: space-between; }
 
-        .badge-estado { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
+        .badge-vigente { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
+        .badge-vencida { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #fee2e2; color: #991b1b; }
 
         .btn-crear { background-color: #FFCC00; color: #002347; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-crear:hover { background-color: #e6b800; }
+
+        .btn-imprimir { background-color: #002347; color: #FFCC00; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-imprimir:hover { background-color: #003366; }
 
         /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -67,6 +71,13 @@
 
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #d4edda; color: #155724; }
         .alert-error { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #f8d7da; color: #721c24; }
+
+        /* Estilo para impresión de ticket térmico */
+        @media print {
+            body * { visibility: hidden; }
+            #ticketImpresion, #ticketImpresion * { visibility: visible; }
+            #ticketImpresion { position: absolute; left: 0; top: 0; width: 100%; padding: 10px; font-family: monospace; font-size: 12px; color: black; background: white; }
+        }
     </style>
 </head>
 <body>
@@ -119,8 +130,12 @@
                 <div class="label"><h4>Total Registradas</h4><p>Pólizas emitidas</p></div>
             </div>
             <div class="card-stat">
-                <div class="numero" style="color: #27ae60;">{{ $vigentes }}</div>
+                <div class="numero" style="color: #27ae60;">{{ $vigentesCount }}</div>
                 <div class="label"><h4>Vigentes</h4><p>Garantías activas</p></div>
+            </div>
+            <div class="card-stat">
+                <div class="numero" style="color: #c0392b;">{{ $vencidasCount }}</div>
+                <div class="label"><h4>Vencidas</h4><p>Pólizas expiradas</p></div>
             </div>
         </div>
 
@@ -143,6 +158,7 @@
                         <th>Fecha Inicio</th>
                         <th>Vigencia (Días)</th>
                         <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -156,11 +172,22 @@
                             </td>
                             <td>{{ $gar->fechalinicio }}</td>
                             <td>{{ $gar->vigenciaDias }} días</td>
-                            <td><span class="badge-estado">{{ $gar->estadoGarantia }}</span></td>
+                            <td>
+                                @if($gar->estadoGarantia == 'Vigente')
+                                    <span class="badge-vigente">Vigente</span>
+                                @else
+                                    <span class="badge-vencida">Vencida</span>
+                                @endif
+                            </td>
+                            <td>
+                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}')">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
+                                </button>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="mensaje-vacio">
+                            <td colspan="7" class="mensaje-vacio">
                                 {{ request('search') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
                             </td>
                         </tr>
@@ -179,6 +206,22 @@
                 <span class="material-symbols-outlined">add_circle</span> Emitir Nueva Garantía
             </button>
         </div>
+    </div>
+
+    <!-- TICKET OCULTO PARA IMPRESIÓN TÉRMICA -->
+    <div id="ticketImpresion" style="display: none;">
+        <div style="text-align: center; font-weight: bold;">BOMBAS GUERRA S.A. DE C.V.</div>
+        <div style="text-align: center;">CONTROL DE TALLER E INVENTARIOS</div>
+        <div style="text-align: center;">--------------------------------</div>
+        <div style="text-align: center; font-size: 14px; font-weight: bold;">PÓLIZA DE GARANTÍA</div>
+        <div>--------------------------------</div>
+        <div><strong>Código:</strong> <span id="t_codigo"></span></div>
+        <div><strong>Folio OT:</strong> <span id="t_folio"></span></div>
+        <div><strong>Cliente:</strong> <span id="t_cliente"></span></div>
+        <div><strong>F. Emisión:</strong> <span id="t_inicio"></span></div>
+        <div><strong>Vigencia:</strong> <span id="t_vigencia"></span> días</div>
+        <div>--------------------------------</div>
+        <div style="text-align: center; font-size: 10px;">¡Conserve este ticket para hacer válida su garantía en taller!</div>
     </div>
 
     <!-- MODAL EMITIR GARANTÍA -->
@@ -216,6 +259,20 @@
     <script>
         function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
         function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
+
+        function imprimirTicket(codigo, folio, cliente, inicio, vigencia) {
+            document.getElementById('t_codigo').innerText = codigo;
+            document.getElementById('t_folio').innerText = folio;
+            document.getElementById('t_cliente').innerText = cliente;
+            document.getElementById('t_inicio').innerText = inicio;
+            document.getElementById('t_vigencia').innerText = vigencia;
+
+            // Mostrar temporalmente el ticket para impresión y ejecutar ventana de impresión
+            let ticketDiv = document.getElementById('ticketImpresion');
+            ticketDiv.style.display = 'block';
+            window.print();
+            ticketDiv.style.display = 'none';
+        }
     </script>
 </body>
 </html>

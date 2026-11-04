@@ -59,9 +59,16 @@ class OrdenTrabajoController extends Controller
 
     public function actualizarEstado(Request $request, $id)
     {
+        $nuevoEstado = $request->estadoOT;
+
         DB::table('orden_trabajo')
             ->where('idOT', $id)
-            ->update(['estadoOT' => $request->estadoOT]);
+            ->update(['estadoOT' => $nuevoEstado]);
+
+        // Si la marca como Terminada, redirige automáticamente al módulo de garantías para asignarla
+        if ($nuevoEstado === 'Terminado') {
+            return redirect('/garantias')->with('success', 'Orden marcada como Terminada. Ahora asígnele su póliza de garantía.');
+        }
 
         return back()->with('success', 'Estado de la orden actualizado correctamente.');
     }
@@ -159,7 +166,6 @@ class OrdenTrabajoController extends Controller
 
             $folioOT = 'OT-' . rand(1000, 9999);
 
-            // Se elimina 'idUsuario' para evitar el error de columna desconocida
             $idOT = DB::table('orden_trabajo')->insertGetId([
                 'folioOT'          => $folioOT,
                 'idCliente'        => $idCliente,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Exception;
 
 class GarantiaController extends Controller
@@ -34,6 +35,30 @@ class GarantiaController extends Controller
                 ->get();
         }
 
+        // Actualizar estatus dinámicamente o contar según fecha
+        $hoy = Carbon::now();
+        $todasGarantias = DB::table('garantia')->get();
+        
+        $vigentesCount = 0;
+        $vencidasCount = 0;
+
+        foreach ($todasGarantias as $g) {
+            $fechaInicio = Carbon::parse($g->fechalinicio);
+            $fechaVencimiento = $fechaInicio->copy()->addDays($g->vigenciaDias);
+
+            if ($hoy->greaterThan($fechaVencimiento)) {
+                $vencidasCount++;
+                // Actualizar a Vencida en BD si sigue figurando como Vigente
+                if ($g->estadoGarantia === 'Vigente') {
+                    DB::table('garantia')->where('idGarantia', $g->idGarantia)->update(['estadoGarantia' => 'Vencida']);
+                }
+            } else {
+                $vigentesCount++;
+            }
+        }
+
+        $totalGarantias = DB::table('garantia')->count();
+
         // Órdenes terminadas disponibles para asignarles garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
             ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
@@ -46,10 +71,7 @@ class GarantiaController extends Controller
             })
             ->get();
 
-        $totalGarantias = DB::table('garantia')->count();
-        $vigentes       = DB::table('garantia')->where('estadoGarantia', 'Vigente')->count();
-
-        return view('garantias', compact('garantias', 'ordenesTerminadas', 'totalGarantias', 'vigentes', 'search'));
+        return view('garantias', compact('garantias', 'ordenesTerminadas', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'search'));
     }
 
     public function store(Request $request)
@@ -59,7 +81,6 @@ class GarantiaController extends Controller
             'vigenciaDias' => 'required|integer|min:1'
         ]);
 
-        // Verificar que la OT esté realmente en estado 'Terminado'
         $ot = DB::table('orden_trabajo')->where('idOT', $request->idOT)->first();
 
         if (!$ot || $ot->estadoOT !== 'Terminado') {
