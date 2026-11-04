@@ -17,8 +17,10 @@ class CotizController extends Controller
 
     public function generarCotizacion(Request $request)
     {
+        // 1. Validaciones (Aseguramos que el teléfono e input de cliente vengan requeridos)
         $request->validate([
             'cliente'   => 'required',
+            'telefono'  => 'nullable|string|max:20', // Validamos el teléfono
             'falla'     => 'required',
             'mano_obra' => 'nullable|numeric'
         ]);
@@ -39,30 +41,42 @@ class CotizController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Buscar o registrar cliente automáticamente
             $nombreClienteInput = $request->input('cliente');
-            $clienteExistente = DB::table('cliente')->where('nombreCliente', $nombreClienteInput)->first();
+            // Si el formulario de cotizaciones no tiene un campo separado para teléfono, puedes usar uno genérico o asegurarte de pedirlo. 
+            // Aquí capturamos el teléfono del request o asignamos uno predeterminado si el formulario no lo envía por separado.
+            $telefonoInput = $request->input('telefono', 'S/N');
+
+            // 2. BUSCAR O REGISTRAR CLIENTE USANDO SU TELÉFONO O NOMBRE
+            $clienteExistente = DB::table('cliente')
+                ->where('nombreCliente', $nombreClienteInput)
+                ->orWhere('telefono', $telefonoInput)
+                ->first();
 
             if ($clienteExistente) {
                 $idCliente = $clienteExistente->idCliente;
+                // Actualizamos los datos por si hubo algún cambio
+                DB::table('cliente')->where('idCliente', $idCliente)->update([
+                    'nombreCliente' => $nombreClienteInput,
+                    'telefono'      => $telefonoInput !== 'S/N' ? $telefonoInput : $clienteExistente->telefono
+                ]);
             } else {
                 $idCliente = DB::table('cliente')->insertGetId([
                     'nombreCliente' => $nombreClienteInput,
-                    'telefono'      => 'S/N' // Valor por defecto si no se ingresó en el formulario
+                    'telefono'      => $telefonoInput
                 ]);
             }
 
-            // 2. Insertar Orden de Trabajo con estado 'En Proceso' por defecto
+            // 3. Insertar Orden de Trabajo con estado 'En Proceso' por defecto
             $idCotizacion = DB::table('orden_trabajo')->insertGetId([
                 'idCliente'        => $idCliente,
                 'folioOT'          => 'OT-' . rand(1000, 9999),
                 'diagnosticoFalla' => $request->input('falla'),
                 'costoManoObra'    => $manoObra,
-                'estadoOT'         => 'En Proceso', // Por defecto en proceso
+                'estadoOT'         => 'En Proceso',
                 'fechaCreacion'    => now()
             ]);
 
-            // 3. Insertar detalles y DESCONTAR DEL INVENTARIO (stock)
+            // 4. Insertar detalles y descontar stock del inventario
             if (is_array($refacciones) && count($refacciones) > 0) {
                 $detalles = [];
                 foreach ($refacciones as $item) {
@@ -73,7 +87,6 @@ class CotizController extends Controller
                         'precioUnitarioHistorico' => $item['precio'], 
                     ];
 
-                    // Descontar la pieza utilizada de la tabla 'refacciones'
                     DB::table('refacciones')
                         ->where('id', $item['id_refaccion'])
                         ->decrement('stock', $item['cantidad']);
@@ -83,7 +96,7 @@ class CotizController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', '¡Orden de trabajo generada con éxito y stock actualizado! Folio OT #' . $idCotizacion);
+            return redirect()->back()->with('success', 'Cotización aprobada y convertida a OT con éxito. Folio OT #' . $idCotizacion);
 
         } catch (Exception $e) {
             DB::rollBack();
