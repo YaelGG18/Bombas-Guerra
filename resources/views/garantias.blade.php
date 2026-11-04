@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #EAEFF2; min-height: 100vh; display: flex; }
 
-        /* Menú Lateral */
         .sidebar { width: 260px; background-color: #002347; color: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; flex-shrink: 0; }
         .sidebar-header { padding: 25px 20px; border-bottom: 2px solid #FFCC00; text-decoration: none; display: block; }
         .sidebar-header h2 { font-size: 16px; color: #FFCC00; letter-spacing: 1px; }
@@ -22,26 +21,22 @@
         .sidebar-footer .info-admin { font-size: 12px; }
         .sidebar-footer .estado { font-size: 10px; color: #4CAF50; }
 
-        /* Contenido Principal */
         .main-content { flex-grow: 1; padding: 30px; min-width: 0; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .titulo-pagina h1 { color: #002B54; font-size: 24px; margin-bottom: 4px; }
         .titulo-pagina p { color: #666; font-size: 14px; }
 
-        /* Tarjetas de Estadísticas */
         .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; max-width: 750px; }
         .card-stat { background-color: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
         .card-stat .numero { font-size: 28px; font-weight: bold; color: #002B54; }
         .card-stat .label h4 { font-size: 13px; color: #333; }
         .card-stat .label p { font-size: 11px; color: #888; }
 
-        /* Buscador */
         .bar-busqueda { display: flex; gap: 10px; margin-bottom: 20px; }
         .bar-busqueda input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
         .btn-filtrar { background-color: #002B54; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; }
         .btn-filtrar:hover { background-color: #001f3f; }
 
-        /* Tabla */
         .contenedor-tabla { background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow-x: auto; margin-bottom: 25px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         thead tr { background-color: #F4F7F9; color: #444; border-bottom: 2px solid #E0E0E0; }
@@ -54,11 +49,9 @@
 
         .btn-crear { background-color: #FFCC00; color: #002347; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-crear:hover { background-color: #e6b800; }
-
         .btn-imprimir { background-color: #002347; color: #FFCC00; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
         .btn-imprimir:hover { background-color: #003366; }
 
-        /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-card { background: white; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcdcdc; padding-bottom: 15px; margin-bottom: 20px; }
@@ -72,7 +65,6 @@
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #d4edda; color: #155724; }
         .alert-error { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #f8d7da; color: #721c24; }
 
-        /* Estilo para impresión de ticket térmico */
         @media print {
             body * { visibility: hidden; }
             #ticketImpresion, #ticketImpresion * { visibility: visible; }
@@ -81,8 +73,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
             <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
@@ -101,14 +91,10 @@
         </div>
         <a href="/" class="sidebar-footer">
             <span class="material-symbols-outlined icono-admin">account_circle</span>
-            <div class="info-admin">
-                <strong>Admin Taller</strong>
-                <div class="estado">● En Línea</div>
-            </div>
+            <div class="info-admin"><strong>Admin Taller</strong><div class="estado">● En Línea</div></div>
         </a>
     </div>
 
-    <!-- Contenido Principal -->
     <div class="main-content">
         <div class="top-header">
             <div class="titulo-pagina">
@@ -139,7 +125,6 @@
             </div>
         </div>
 
-        <!-- Buscador -->
         <form action="/garantias" method="GET" class="bar-busqueda">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por Código de Garantía, Folio OT o Cliente...">
             <button type="submit" class="btn-filtrar">
@@ -147,7 +132,6 @@
             </button>
         </form>
 
-        <!-- Tabla -->
         <div class="contenedor-tabla">
             <table>
                 <thead>
@@ -165,27 +149,28 @@
                 <tbody>
                     @forelse($garantias as $gar)
                         @php
-                            $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
+                            $fechaVencimiento = \Carbon\Carbon::parse($gar->fecha)->addDays($gar->vigencia_dias)->toDateString();
+                            $esVigente = \Carbon\Carbon::now()->startOfDay()->lte(\Carbon\Carbon::parse($fechaVencimiento));
                         @endphp
                         <tr>
-                            <td><strong>{{ $gar->codigoVerificacion }}</strong></td>
-                            <td>{{ $gar->folioOT }}</td>
+                            <td><strong>{{ $gar->codigo_unico }}</strong></td>
+                            <td>OT-{{ $gar->idOT }}</td>
                             <td>
-                                {{ $gar->nombreCliente }}<br>
-                                <small style="color: #003366; font-weight: bold;">Tel: {{ $gar->telefono }}</small>
+                                {{ $gar->nombre_cliente ?? 'Desconocido' }}<br>
+                                <small style="color: #003366; font-weight: bold;">Tel: {{ $gar->telefono ?? 'N/A' }}</small>
                             </td>
-                            <td>{{ $gar->fechalinicio }}</td>
-                            <td>{{ $gar->vigenciaDias }} días</td>
+                            <td>{{ $gar->fecha }}</td>
+                            <td>{{ $gar->vigencia_dias }} días</td>
                             <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td>
                             <td>
-                                @if($gar->estadoGarantia == 'Vigente')
+                                @if($esVigente)
                                     <span class="badge-vigente">Vigente</span>
                                 @else
                                     <span class="badge-vencida">Vencida</span>
                                 @endif
                             </td>
                             <td>
-                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
+                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigo_unico }}', 'OT-{{ $gar->idOT }}', '{{ $gar->nombre_cliente }}', '{{ $gar->fecha }}', '{{ $gar->vigencia_dias }}', '{{ $fechaVencimiento }}')">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
                                 </button>
                             </td>
@@ -193,7 +178,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="mensaje-vacio">
-                                {{ request('search') || request('ot') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
+                                {{ request('search') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
                             </td>
                         </tr>
                     @endforelse
@@ -205,7 +190,6 @@
             </div>
         </div>
 
-        <!-- Botón Inferior -->
         <div style="margin-top: 20px;">
             <button class="btn-crear" onclick="abrirModalGarantia()">
                 <span class="material-symbols-outlined">add_circle</span> Emitir Nueva Garantía
@@ -245,7 +229,7 @@
                         <option value="">-- Seleccione una OT Terminada --</option>
                         @foreach($ordenesTerminadas as $ot)
                             <option value="{{ $ot->idOT }}" {{ request('ot') == $ot->idOT ? 'selected' : '' }}>
-                                {{ $ot->folioOT }} - {{ $ot->nombreCliente }}
+                                OT-{{ $ot->idOT }} - {{ $ot->nombre_cliente ?? 'Desconocido' }}
                             </option>
                         @endforeach
                     </select>
@@ -253,7 +237,7 @@
 
                 <div class="form-group">
                     <label>Vigencia en Días</label>
-                    <input type="number" name="vigenciaDias" class="form-control" value="30" min="1" required>
+                    <input type="number" name="vigencia_dias" class="form-control" value="30" min="1" required>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -268,12 +252,9 @@
         function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
         function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
 
-        // Abre el modal automáticamente si llega el parámetro '?ot=' desde Órdenes de Trabajo
         window.addEventListener('DOMContentLoaded', (event) => {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('ot')) {
-                abrirModalGarantia();
-            }
+            if (urlParams.has('ot')) { abrirModalGarantia(); }
         });
 
         function imprimirTicket(codigo, folio, cliente, inicio, vigencia, vencimiento) {
