@@ -16,11 +16,11 @@ class GarantiaController extends Controller
 
         // 1. Consultar Garantías registradas con joins
         $query = DB::table('garantia')
-            ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.id')
+            ->join('orden_trabajo', 'garantia.idOT', '=', 'idOT')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
             ->select(
                 'garantia.*', 
-                'orden_trabajo.id as idOT', 
+                'idOT', 
                 'orden_trabajo.fecha', 
                 'cliente.nombre as nombre_cliente',
                 'cliente.telefono'
@@ -28,7 +28,7 @@ class GarantiaController extends Controller
 
         if ($search) {
             $query->where('garantia.codigo_unico', 'like', "%$search%")
-                  ->orWhere('orden_trabajo.id', 'like', "%$search%")
+                  ->orWhere('idOT', 'like', "%$search%")
                   ->orWhere('cliente.nombre', 'like', "%$search%");
         }
 
@@ -52,10 +52,10 @@ class GarantiaController extends Controller
         $ordenesTerminadas = DB::table('orden_trabajo')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
             ->where('orden_trabajo.estado', 'Terminada') 
-            ->whereNotIn('orden_trabajo.id', function($q) {
+            ->whereNotIn('idOT', function($q) {
                 $q->select('idOT')->from('garantia'); // Excluir OT que ya tienen garantía
             })
-            ->select('orden_trabajo.id as idOT', 'cliente.nombre as nombre_cliente')
+            ->select('idOT', 'cliente.nombre as nombre_cliente')
             ->get();
 
         return view('garantias', compact('garantias', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'ordenesTerminadas'));
