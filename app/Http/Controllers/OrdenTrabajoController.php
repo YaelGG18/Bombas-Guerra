@@ -33,13 +33,19 @@ class OrdenTrabajoController extends Controller
                 ->get();
         }
 
-        // Adjuntar los detalles de refacciones a cada orden para el modal de edición
+        // Adjuntar refacciones y calcular el Total (Mano de obra + refacciones) para cada orden
         foreach ($ordenes as $ot) {
             $ot->refacciones = DB::table('detalle_ot')
                 ->join('refacciones', 'detalle_ot.idRefaccion', '=', 'refacciones.id')
                 ->select('detalle_ot.*', 'refacciones.nombre', 'refacciones.precio_venta as precio', 'refacciones.stock as stockMax')
                 ->where('detalle_ot.idOT', $ot->idOT)
                 ->get();
+
+            $subtotalRefacciones = $ot->refacciones->sum(function($item) {
+                return $item->cantidad * $item->precioUnitarioHistorico;
+            });
+
+            $ot->totalGeneral = $subtotalRefacciones + $ot->costoManoObra;
         }
 
         $totalOrdenes = DB::table('orden_trabajo')->count();
@@ -76,7 +82,6 @@ class OrdenTrabajoController extends Controller
         try {
             DB::beginTransaction();
 
-            // 1. Actualizar datos principales de la OT
             DB::table('orden_trabajo')
                 ->where('idOT', $id)
                 ->update([
@@ -85,7 +90,6 @@ class OrdenTrabajoController extends Controller
                     'estadoOT'         => $request->input('estadoOT')
                 ]);
 
-            // 2. Devolver stock anterior al inventario antes de recalcular
             $detallesAntiguos = DB::table('detalle_ot')->where('idOT', $id)->get();
             foreach ($detallesAntiguos as $antiguo) {
                 DB::table('refacciones')
@@ -93,10 +97,8 @@ class OrdenTrabajoController extends Controller
                     ->increment('stock', $antiguo->cantidad);
             }
 
-            // 3. Eliminar detalles viejos
             DB::table('detalle_ot')->where('idOT', $id)->delete();
 
-            // 4. Insertar nuevos detalles y descontar stock actualizado
             if (is_array($refacciones) && count($refacciones) > 0) {
                 $nuevosDetalles = [];
                 foreach ($refacciones as $item) {
@@ -143,7 +145,6 @@ class OrdenTrabajoController extends Controller
             $clienteExistente = DB::table('cliente')->where('telefono', $request->input('telefono'))->first();
             if ($clienteExistente) {
                 $idCliente = $clienteExistente->idCliente;
-                // Actualizar nombre por si cambió
                 DB::table('cliente')->where('idCliente', $idCliente)->update(['nombreCliente' => $request->input('nombreCliente')]);
             } else {
                 $idCliente = DB::table('cliente')->insertGetId([

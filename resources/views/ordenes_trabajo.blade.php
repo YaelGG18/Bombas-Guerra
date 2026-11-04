@@ -156,7 +156,7 @@
                         <th>Fecha</th>
                         <th>Cliente / Tel.</th>
                         <th>Falla / Diagnóstico</th>
-                        <th>Mano de Obra</th>
+                        <th>Total ($)</th> <!-- Columna Total corregida -->
                         <th>Estado</th>
                         <th>Cambiar Estado</th>
                         <th>Acción</th>
@@ -172,7 +172,7 @@
                                 <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
                             </td>
                             <td>{{ $ot->diagnosticoFalla }}</td>
-                            <td>${{ number_format($ot->costoManoObra, 2) }}</td>
+                            <td><strong>${{ number_format($ot->totalGeneral, 2) }}</strong></td> <!-- Muestra el Total calculado -->
                             <td>
                                 @if($ot->estadoOT == 'En Proceso')
                                     <span class="badge-estado estado-proceso">En Proceso</span>
@@ -183,7 +183,6 @@
                                 @endif
                             </td>
                             <td>
-                                <!-- Selector de estado directo en la tabla -->
                                 <form action="/ordenes_trabajo/estado/{{ $ot->idOT }}" method="POST">
                                     @csrf
                                     <select name="estadoOT" style="padding: 4px; font-size: 12px; border-radius: 4px;" onchange="this.form.submit()">
@@ -221,7 +220,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDICIÓN (Permite cambiar diagnóstico, mano de obra, estado y refacciones) -->
+    <!-- MODAL DE EDICIÓN -->
     <div class="modal-overlay" id="modalEditar">
         <div class="modal-card">
             <div class="modal-header">
@@ -249,7 +248,6 @@
                     <textarea class="form-control" id="edit_diagnostico" name="diagnosticoFalla" rows="2" required></textarea>
                 </div>
 
-                <!-- Buscador de refacciones para edición -->
                 <div class="form-group">
                     <label>Añadir Refacciones del Inventario</label>
                     <input type="text" id="buscadorRefEdit" class="form-control" placeholder="Escribe para buscar refacción..." onkeyup="filtrarCatalogoEdit()">
@@ -332,6 +330,7 @@
                 <h2>Crear Nueva Orden de Trabajo Directa</h2>
                 <button class="btn-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
+            <!-- Ruta corregida explícitamente para asegurar el envío del formulario -->
             <form action="{{ route('ordenes_trabajo.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="refacciones" id="inputRefaccionesJson">
@@ -492,7 +491,7 @@
             document.getElementById('totalCreateText').innerText = '$' + total.toFixed(2);
         }
 
-        // Modal Editar OT (con gestión de carrito)
+        // Modal Editar OT
         let carritoEdit = [];
         function abrirModalEditar(ot) {
             document.getElementById('edit_folio').value = ot.folioOT;
@@ -502,13 +501,12 @@
             document.getElementById('edit_estado').value = ot.estadoOT;
             document.getElementById('formUpdate').action = '/ordenes_trabajo/' + ot.idOT;
             
-            // Cargar refacciones existentes de la OT al carrito de edición
             carritoEdit = ot.refacciones.map(r => ({
                 id_refaccion: r.idRefaccion,
                 nombre: r.nombre,
                 precio: parseFloat(r.precio),
                 cantidad: r.cantidad,
-                stockMax: r.stockMax + r.cantidad // Stock disponible considerando lo que ya tiene la orden
+                stockMax: r.stockMax + r.cantidad
             }));
             
             renderCarritoEdit();
