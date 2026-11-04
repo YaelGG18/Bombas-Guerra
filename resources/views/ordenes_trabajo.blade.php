@@ -29,6 +29,7 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 100vh;
+            flex-shrink: 0;
         }
 
         .sidebar-header {
@@ -109,6 +110,7 @@
         .main-content {
             flex-grow: 1;
             padding: 30px;
+            min-width: 0;
         }
 
         .top-header {
@@ -127,26 +129,6 @@
         .titulo-pagina p {
             color: #666;
             font-size: 14px;
-        }
-
-        .btn-crear {
-            background-color: #FFCC00;
-            color: #002347;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-
-        .btn-crear:hover {
-            background-color: #e6b800;
         }
 
         /* Tarjetas de Contadores */
@@ -196,17 +178,24 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
+            outline: none;
         }
 
         .btn-filtrar {
-            background-color: #fff;
-            border: 1px solid #ccc;
-            padding: 10px 15px;
+            background-color: #002B54;
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 5px;
+            font-weight: bold;
+        }
+
+        .btn-filtrar:hover {
+            background-color: #001f3f;
         }
 
         /* Tabla de Órdenes */
@@ -214,7 +203,7 @@
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            overflow: hidden;
+            overflow-x: auto;
         }
 
         table {
@@ -232,6 +221,7 @@
 
         th, td {
             padding: 14px 16px;
+            border-bottom: 1px solid #eee;
         }
 
         .mensaje-vacio {
@@ -248,6 +238,27 @@
             border-top: 1px solid #E0E0E0;
             display: flex;
             justify-content: space-between;
+        }
+
+        .badge-estado {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .estado-proceso { background-color: #fef3c7; color: #d97706; }
+        .estado-terminado { background-color: #d1fae5; color: #065f46; }
+        .estado-cancelado { background-color: #fee2e2; color: #991b1b; }
+
+        .alert {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
         }
     </style>
 </head>
@@ -325,10 +336,14 @@
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="alert">{{ session('success') }}</div>
+        @endif
+
         <!-- Tarjetas de Estado de Órdenes -->
         <div class="grid-stats">
             <div class="card-stat">
-                <div class="numero">0</div>
+                <div class="numero">{{ $totalOrdenes }}</div>
                 <div class="label">
                     <h4>Órdenes registradas</h4>
                     <p>Listado completo</p>
@@ -336,7 +351,7 @@
             </div>
 
             <div class="card-stat">
-                <div class="numero" style="color: #e67e22;">0</div>
+                <div class="numero" style="color: #e67e22;">{{ $enProceso }}</div>
                 <div class="label">
                     <h4>En Proceso</h4>
                     <p>Reparaciones activas</p>
@@ -344,7 +359,7 @@
             </div>
 
             <div class="card-stat">
-                <div class="numero" style="color: #27ae60;">0</div>
+                <div class="numero" style="color: #27ae60;">{{ $terminado }}</div>
                 <div class="label">
                     <h4>Terminado</h4>
                     <p>Servicio concluido</p>
@@ -352,7 +367,7 @@
             </div>
 
             <div class="card-stat">
-                <div class="numero" style="color: #c0392b;">0</div>
+                <div class="numero" style="color: #c0392b;">{{ $cancelado }}</div>
                 <div class="label">
                     <h4>Cancelado</h4>
                     <p>Sin cargos aplicados</p>
@@ -361,12 +376,12 @@
         </div>
 
         <!-- Buscador -->
-        <div class="bar-busqueda">
-            <input type="text" placeholder="Buscar por Folio OT, Cliente o Teléfono...">
-            <button class="btn-filtrar">
+        <form action="/ordenes_trabajo" method="GET" class="bar-busqueda">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por Folio OT, Cliente o Teléfono...">
+            <button type="submit" class="btn-filtrar">
                 <span class="material-symbols-outlined">filter_list</span> Filtrar
             </button>
-        </div>
+        </form>
 
         <!-- Tabla Limpia de Órdenes de Trabajo -->
         <div class="contenedor-tabla">
@@ -375,26 +390,56 @@
                     <tr>
                         <th>Folio OT</th>
                         <th>Fecha</th>
-                        <th>Cliente</th>
+                        <th>Cliente / Tel.</th>
                         <th>Falla / Diagnóstico</th>
-                        <th>Monto Refacciones</th>
                         <th>Mano de Obra</th>
-                        <th>Total</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th>Cambiar Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="9" class="mensaje-vacio">
-                            No hay órdenes de trabajo registradas. Se poblará al conectar con la base de datos.
-                        </td>
-                    </tr>
+                    @forelse($ordenes as $ot)
+                        <tr>
+                            <td><strong>{{ $ot->folioOT }}</strong></td>
+                            <td>{{ $ot->fechaCreacion }}</td>
+                            <td>
+                                {{ $ot->nombreCliente }}<br>
+                                <small style="color: #777;">{{ $ot->telefono }}</small>
+                            </td>
+                            <td>{{ $ot->diagnosticoFalla }}</td>
+                            <td>${{ number_format($ot->costoManoObra, 2) }}</td>
+                            <td>
+                                @if($ot->estadoOT == 'En Proceso')
+                                    <span class="badge-estado estado-proceso">En Proceso</span>
+                                @elseif($ot->estadoOT == 'Terminado')
+                                    <span class="badge-estado estado-terminado">Terminado</span>
+                                @else
+                                    <span class="badge-estado estado-cancelado">Cancelado</span>
+                                @endif
+                            </td>
+                            <td>
+                                <form action="/ordenes_trabajo/estado/{{ $ot->idOT }}" method="POST">
+                                    @csrf
+                                    <select name="estadoOT" style="padding: 4px; font-size: 12px; border-radius: 4px;" onchange="this.form.submit()">
+                                        <option value="En Proceso" {{ $ot->estadoOT == 'En Proceso' ? 'selected' : '' }}>En Proceso</option>
+                                        <option value="Terminado" {{ $ot->estadoOT == 'Terminado' ? 'selected' : '' }}>Terminado</option>
+                                        <option value="Cancelado" {{ $ot->estadoOT == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="mensaje-vacio">
+                                No hay órdenes de trabajo registradas. Se poblará al conectar con la base de datos.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
             <div class="footer-tabla">
-                <span>Mostrando 0 órdenes en total</span>
+                <span>Mostrando {{ count($ordenes) }} órdenes en total</span>
                 <span>BOMBAS GUERRA S.A. DE C.V.</span>
             </div>
         </div>

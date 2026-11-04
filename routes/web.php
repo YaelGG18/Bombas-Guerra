@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RefaccionController;
 use App\Http\Controllers\CotizController;
+use App\Http\Controllers\OrdenTrabajoController;
 
 // Ruta del Login (Pantalla Principal)
 Route::get('/', function () {
@@ -28,9 +29,8 @@ Route::get('/cotizaciones', function () {
     return view('cotizaciones');
 });
 
-Route::get('/ordenes_trabajo', function () {
-    return view('ordenes_trabajo');
-});
+Route::get('/ordenes_trabajo', [OrdenTrabajoController::class, 'index']);
+Route::post('/ordenes_trabajo/estado/{id}', [OrdenTrabajoController::class, 'actualizarEstado']);
 
 Route::get('/venta_directa', function () {
     return view('venta_directa');
