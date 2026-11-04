@@ -40,7 +40,6 @@ Route::post('/ordenes_trabajo/store-directo', [OrdenTrabajoController::class, 's
 Route::get('/venta_directa', [App\Http\Controllers\VentaDirectaController::class, 'index'])->name('venta_directa');
 Route::post('/venta_directa/procesar', [App\Http\Controllers\VentaDirectaController::class, 'procesarVenta'])->name('venta_directa.procesar');
 
-
 Route::get('/garantias', [App\Http\Controllers\GarantiaController::class, 'index'])->name('garantias.index');
 Route::post('/garantias', [GarantiaController::class, 'store'])->name('garantias.store');
 
@@ -53,8 +52,6 @@ Route::put('/refacciones/{id}', [RefaccionController::class, 'update']);
 
 Route::delete('/refacciones/{id}', [RefaccionController::class, 'destroy']);
 
-Route::get('/venta_directa', [RefaccionController::class, 'ventaDirecta'])->name('venta_directa');
-Route::post('/venta_directa/procesar', [RefaccionController::class, 'procesarVenta'])->name('venta_directa.procesar');
 Route::get('/cotizaciones', [CotizController::class, 'index'])->name('cotizaciones.index');
 Route::post('/generar-cotizacion', [CotizController::class, 'generarCotizacion'])->name('cotizacion.generar');
 
