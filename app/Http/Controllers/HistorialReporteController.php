@@ -11,13 +11,17 @@ class HistorialReporteController extends Controller
     {
         $search = $request->input('search');
         
-        // Definimos la pestaña activa por defecto ('ot' o 'ventas')
+        // Pestaña activa por defecto ('ot' o 'ventas')
         $tabActiva = $request->input('tab', 'ot');
 
-        // 1. Consultar Historial de Órdenes de Trabajo
+        // 1. Consultar Historial de Órdenes de Trabajo (usando nombres reales de tu BD)
         $queryOT = DB::table('orden_trabajo')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-            ->select('orden_trabajo.*', 'cliente.nombreCliente');
+            ->select(
+                'orden_trabajo.*', 
+                'cliente.nombreCliente',
+                'cliente.telefono'
+            );
 
         if ($search) {
             $queryOT->where('orden_trabajo.folioOT', 'like', "%$search%")
@@ -26,10 +30,14 @@ class HistorialReporteController extends Controller
         
         $ordenes = $queryOT->get();
 
-        // 2. Consultar Historial de Ventas Directas
+        // 2. Consultar Historial de Ventas Directas (usando nombres reales de tu BD)
         $queryVentas = DB::table('venta_directa')
             ->leftJoin('cliente', 'venta_directa.idCliente', '=', 'cliente.idCliente')
-            ->select('venta_directa.*', 'cliente.nombreCliente');
+            ->select(
+                'venta_directa.*', 
+                'cliente.nombreCliente',
+                'cliente.telefono'
+            );
 
         if ($search) {
             $queryVentas->where('venta_directa.folioVenta', 'like', "%$search%")
@@ -38,7 +46,7 @@ class HistorialReporteController extends Controller
         
         $ventas = $queryVentas->get();
 
-        // Enviamos $tabActiva junto con los datos a la vista
+        // Retornamos todas las variables necesarias a la vista para evitar errores de variables indefinidas
         return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva'));
     }
 }
