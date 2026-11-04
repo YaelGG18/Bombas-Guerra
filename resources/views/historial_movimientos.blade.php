@@ -202,8 +202,13 @@
                     <tbody>
                         @forelse($ventas as $v)
                             <tr>
-                                <td><strong>{{ $v->folioVenta }}</strong></td>
-                                <td>{{ $v->created_at }}</td>
+<tr>
+            <td><strong>{{ $v->folioVenta }}</strong></td>
+            <td>{{ $v->fechaVenta }}</td>
+            <td>{{ $v->nombreCliente }}</td>
+            <td>{{ $v->cantidadArticulos }} unids.</td>
+            <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
+        </tr> e72d9d7787adb9ee8a598cf84fa1fbb4f7329f55
                                 <td>{{ $v->clienteMostrador }}</td>
                                 <td>{{ $v->cantidadArticulos }} unids.</td>
                                 <td><strong>${{ number_format($v->total, 2) }}</strong></td>
