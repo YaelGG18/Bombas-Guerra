@@ -18,7 +18,7 @@ class CotizController extends Controller
     }
 
     // Método para procesar el formulario
-    ublic function generarCotizacion(Request $request)
+    public function generarCotizacion(Request $request)
     {
         // 1. Validaciones
         $request->validate([
