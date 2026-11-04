@@ -31,7 +31,8 @@ Route::get('/cotizaciones', function () {
 
 Route::get('/ordenes_trabajo', [OrdenTrabajoController::class, 'index']);
 Route::post('/ordenes_trabajo/estado/{id}', [OrdenTrabajoController::class, 'actualizarEstado']);
-
+Route::put('/ordenes_trabajo/{id}', [OrdenTrabajoController::class, 'update']);
+Route::post('/ordenes_trabajo/store-directo', [OrdenTrabajoController::class, 'storeDirecto'])->name('ordenes_trabajo.store');
 Route::get('/venta_directa', function () {
     return view('venta_directa');
 });
