@@ -148,11 +148,11 @@
                                 <div class="item-refaccion" data-nombre="{{ strtolower($refaccion->nombre) }}">
                                     <div style="flex-grow: 1;">
                                         <strong style="color: #002B54; font-size: 14px;">{{ $refaccion->nombre }}</strong><br>
-                                        <small style="color: #666;">Stock: {{ $refaccion->cantidadStock ?? 0 }}</small>                                    </div>
+                                        <small style="color: #666;">Stock: {{ $refaccion->stock ?? 0 }}</small>                                    </div>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-weight: bold; color: #4CAF50;">${{ number_format($refaccion->precio ?? 0, 2) }}</span>                                        
+                                    <span style="font-weight: bold; color: #4CAF50;">${{ number_format($refaccion->precio_venta ?? 0, 2) }}</span>                                        
                                         <!-- Botón conectado a JS -->
-                                    <button type="button" class="btn-add-pieza" onclick="agregarPieza({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio ?? 0 }})" title="Agregar a cotización">                                            <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                                    <button type="button" class="btn-add-pieza" onclick="agregarPieza({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio_venta ?? 0 }})" title="Agregar a cotización">                                            <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
                                         </button>
                                     </div>
                                 </div>
