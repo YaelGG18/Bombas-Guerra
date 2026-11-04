@@ -62,6 +62,6 @@ class HistorialReporteController extends Controller
         $ventas = $queryVentas->get();
 
         // Enviamos todas las variables necesarias a la vista (incluyendo las fechas y la pestaña activa)
-        return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin'));
-    }
+    return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin', 'search'));
+        }
 }
