@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RefaccionController;
 use App\Http\Controllers\CotizController;
 use App\Http\Controllers\OrdenTrabajoController;
+use App\Http\Controllers\GarantiaController;
 
 // Ruta del Login (Pantalla Principal)
 Route::get('/', function () {
@@ -37,9 +38,10 @@ Route::get('/venta_directa', function () {
     return view('venta_directa');
 });
 
-Route::get('/garantias', function () {
-    return view('garantias');
-});
+
+
+Route::get('/garantias', [GarantiaController::class, 'index']);
+Route::post('/garantias', [GarantiaController::class, 'store'])->name('garantias.store');
 
 Route::get('/historial_movimientos', function () {
     return view('historial_movimientos');
