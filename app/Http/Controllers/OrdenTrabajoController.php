@@ -68,7 +68,6 @@ class OrdenTrabajoController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validar si la orden ya está terminada
         $ordenActual = DB::table('orden_trabajo')->where('idOT', $id)->first();
         if ($ordenActual && $ordenActual->estadoOT === 'Terminado') {
             return back()->with('error', 'Esta Orden de Trabajo ya se encuentra Terminada y cuenta con garantía asignada. No se puede modificar.');
@@ -160,10 +159,10 @@ class OrdenTrabajoController extends Controller
 
             $folioOT = 'OT-' . rand(1000, 9999);
 
+            // Se elimina 'idUsuario' para evitar el error de columna desconocida
             $idOT = DB::table('orden_trabajo')->insertGetId([
                 'folioOT'          => $folioOT,
                 'idCliente'        => $idCliente,
-                'idUsuario'        => 1,
                 'diagnosticoFalla' => $request->input('diagnosticoFalla'),
                 'costoManoObra'    => $manoObra,
                 'estadoOT'         => 'En Proceso',
