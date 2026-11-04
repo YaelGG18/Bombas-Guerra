@@ -6,105 +6,117 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Str;
 
 class GarantiaController extends Controller
 {
+    // 1. Cargar la vista principal con las tablas y estadísticas
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $otParam = $request->input('ot');
 
-        if (!$search && !$otParam) {
-            $garantias = collect();
-        } else {
-            $query = DB::table('garantia')
-                ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
-                ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-                ->select(
-                    'garantia.*',
-                    'orden_trabajo.folioOT',
-                    'cliente.nombreCliente',
-                    'cliente.telefono'
-                );
+        // Consultar Garantías registradas con los nombres exactos de columnas de la BD
+        $query = DB::table('garantia')
+            ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+            ->select(
+                'garantia.*', 
+                'orden_trabajo.folioOT', 
+                'cliente.nombreCliente',
+                'cliente.telefono'
+            );
 
-            if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('garantia.codigoVerificacion', 'LIKE', "%{$search}%")
-                      ->orWhere('orden_trabajo.folioOT', 'LIKE', "%{$search}%")
-                      ->orWhere('cliente.nombreCliente', 'LIKE', "%{$search}%")
-                      ->orWhere('cliente.telefono', 'LIKE', "%{$search}%");
-                });
-            }
-
-            $garantias = $query->orderBy('garantia.fechalinicio', 'desc')->get();
+        if ($search) {
+            $query->where('garantia.codigoVerificacion', 'like', "%$search%")
+                  ->orWhere('orden_trabajo.folioOT', 'like', "%$search%")
+                  ->orWhere('cliente.nombreCliente', 'like', "%$search%");
         }
 
-        $hoy = Carbon::now();
-        $todasGarantias = DB::table('garantia')->get();
-        
+        $garantias = $query->get();
+
+        // Calcular estadísticas (Vigentes vs Vencidas)
+        $totalGarantias = count($garantias);
         $vigentesCount = 0;
         $vencidasCount = 0;
 
-        foreach ($todasGarantias as $g) {
-            $fechaInicio = Carbon::parse($g->fechalinicio);
-            $fechaVencimiento = $fechaInicio->copy()->addDays($g->vigenciaDias);
-
-            if ($hoy->greaterThan($fechaVencimiento)) {
-                $vencidasCount++;
-                if ($g->estadoGarantia === 'Vigente') {
-                    DB::table('garantia')->where('idGarantia', $g->idGarantia)->update(['estadoGarantia' => 'Vencida']);
-                }
-            } else {
+        foreach ($garantias as $gar) {
+            // Usamos fechalinicio y vigenciaDias reales de la tabla garantia
+            $fechaVencimiento = Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias);
+            if (Carbon::now()->startOfDay()->lte($fechaVencimiento)) {
                 $vigentesCount++;
+            } else {
+                $vencidasCount++;
             }
         }
 
-        $totalGarantias = DB::table('garantia')->count();
-
-        // Órdenes terminadas o la específica que venga por la URL (?ot=X)
+        // Órdenes Terminadas disponibles para emitir nueva garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
-            ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-            ->select('orden_trabajo.idOT', 'orden_trabajo.folioOT', 'cliente.nombreCliente')
-            ->where(function($query) use ($otParam) {
-                $query->where('orden_trabajo.estadoOT', 'Terminado')
-                      ->orWhere('orden_trabajo.estadoOT', 'terminado');
-                if ($otParam) {
-                    $query->orWhere('orden_trabajo.idOT', $otParam);
-                }
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+            ->where('orden_trabajo.estadoOT', 'Terminada')
+            ->whereNotIn('orden_trabajo.idOT', function($q) {
+                $q->select('idOT')->from('garantia'); 
             })
+            ->select('orden_trabajo.idOT', 'orden_trabajo.folioOT', 'cliente.nombreCliente')
             ->get();
 
-        return view('garantias', compact('garantias', 'ordenesTerminadas', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'search'));
+        return view('garantias', compact('garantias', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'ordenesTerminadas'));
     }
 
+    // 2. Crear nueva garantía en la BD
     public function store(Request $request)
     {
         $request->validate([
-            'idOT'         => 'required|integer',
+            'idOT' => 'required|integer',
             'vigenciaDias' => 'required|integer|min:1'
         ]);
 
-        $ot = DB::table('orden_trabajo')->where('idOT', $request->idOT)->first();
-
-        if (!$ot || (strtolower($ot->estadoOT) !== 'terminado')) {
-            return back()->with('error', 'Solo se puede emitir garantía a Órdenes de Trabajo que se encuentren en estado Terminado.');
-        }
-
         try {
-            $codigoVerificacion = 'GAR-' . str_replace('OT-', '', $ot->folioOT) . '-' . rand(100, 999);
-
             DB::table('garantia')->insert([
-                'idOT'               => $request->idOT,
-                'codigoVerificacion' => $codigoVerificacion,
-                'fechalinicio'       => now()->toDateString(),
-                'vigenciaDias'       => $request->vigenciaDias,
-                'estadoGarantia'     => 'Vigente'
+                'idOT' => $request->input('idOT'),
+                'codigoVerificacion' => 'BG-' . strtoupper(Str::random(5)), 
+                'fechalinicio' => Carbon::now()->toDateString(), // Asigna la fecha actual
+                'vigenciaDias' => $request->input('vigenciaDias'),
+                'estadoGarantia' => 'Vigente'
             ]);
 
-            return redirect('/garantias?search=' . $codigoVerificacion)->with('success', '¡Garantía registrada con éxito! Código: ' . $codigoVerificacion);
+            return redirect()->route('garantias.index')->with('success', 'Garantía generada exitosamente.');
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Error al emitir póliza: ' . $e->getMessage());
+        }
+    }
+
+    // 3. Buscar código único de validación
+    public function buscar(Request $request)
+    {
+        $request->validate([
+            'codigo_garantia' => 'required|string|max:50'
+        ], [
+            'codigo_garantia.required' => 'Debe ingresar un código para buscar.'
+        ]);
+
+        $codigo = $request->input('codigo_garantia');
+
+        try {
+            $resultado = DB::table('garantia')
+                ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
+                ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+                ->where('garantia.codigoVerificacion', $codigo)
+                ->select(
+                    'garantia.*', 
+                    'orden_trabajo.diagnosticoFalla', 
+                    'orden_trabajo.folioOT', 
+                    'cliente.nombreCliente'
+                )
+                ->first();
+
+            if ($resultado) {
+                return view('garantias', compact('resultado'));
+            } else {
+                return redirect()->back()->with('error', 'Código de garantía "' . $codigo . '" no encontrado o no es válido.');
+            }
 
         } catch (Exception $e) {
-            return back()->with('error', 'Error al registrar la garantía: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error del sistema: ' . $e->getMessage());
         }
     }
 }
