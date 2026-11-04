@@ -157,7 +157,7 @@
                         <th>Cliente / Tel.</th>
                         <th>Fecha Inicio</th>
                         <th>Vigencia</th>
-                        <th>Fecha de Vencimiento</th> <!-- Columna nueva agregada -->
+                        <th>Fecha de Vencimiento</th>
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
@@ -176,7 +176,7 @@
                             </td>
                             <td>{{ $gar->fechalinicio }}</td>
                             <td>{{ $gar->vigenciaDias }} días</td>
-                            <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td> <!-- Muestra la fecha calculada -->
+                            <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td>
                             <td>
                                 @if($gar->estadoGarantia == 'Vigente')
                                     <span class="badge-vigente">Vigente</span>
@@ -244,7 +244,9 @@
                     <select name="idOT" class="form-control" required>
                         <option value="">-- Seleccione una OT Terminada --</option>
                         @foreach($ordenesTerminadas as $ot)
-                            <option value="{{ $ot->idOT }}">{{ $ot->folioOT }} - {{ $ot->nombreCliente }}</option>
+                            <option value="{{ $ot->idOT }}" {{ request('ot') == $ot->idOT ? 'selected' : '' }}>
+                                {{ $ot->folioOT }} - {{ $ot->nombreCliente }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -265,6 +267,14 @@
     <script>
         function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
         function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
+
+        // Abre el modal automáticamente si llega el parámetro '?ot=' desde Órdenes de Trabajo
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('ot')) {
+                abrirModalGarantia();
+            }
+        });
 
         function imprimirTicket(codigo, folio, cliente, inicio, vigencia, vencimiento) {
             document.getElementById('t_codigo').innerText = codigo;
