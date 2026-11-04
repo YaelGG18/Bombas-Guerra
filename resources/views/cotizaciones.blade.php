@@ -217,6 +217,42 @@
             background-color: #fafafa;
         }
 
+        /* Lista de refacciones dinámica */
+        .lista-refacciones {
+            max-height: 300px; 
+            overflow-y: auto; 
+            padding-right: 5px;
+        }
+
+        .item-refaccion {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px; 
+            border-bottom: 1px solid #eee; 
+            background: #fff; 
+            margin-bottom: 5px; 
+            border-radius: 6px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .btn-add-pieza {
+            background: #002B54; 
+            color: #FFCC00; 
+            border: none; 
+            border-radius: 4px; 
+            width: 30px; 
+            height: 30px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .btn-add-pieza:hover {
+            background: #001f3f;
+        }
+
         /* Resumen de costos */
         .resumen-filas {
             display: flex;
@@ -352,7 +388,7 @@
             </div>
         </div>
 
-        <!-- ALERTAS DE LARAVEL INSERTADAS AQUÍ -->
+        <!-- ALERTAS DE LARAVEL -->
         @if(session('success'))
             <div class="alerta alerta-success">{{ session('success') }}</div>
         @endif
@@ -362,7 +398,7 @@
 
         <!-- FORMULARIO ENVOLVIENDO TODO EL CONTENIDO DEL GRID -->
         <form action="{{ route('cotizacion.generar') }}" method="POST">
-            @csrf <!-- Obligatorio -->
+            @csrf <!-- Token Obligatorio -->
 
             <div class="grid-cotizacion">
                 
@@ -378,19 +414,16 @@
                         <div class="form-row-2">
                             <div class="form-group">
                                 <label for="telefono">Número Telefónico</label>
-                                <!-- Se agregó name="telefono" -->
                                 <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ej. 477 123 4567">
                             </div>
                             <div class="form-group">
                                 <label for="cliente">Nombre del Cliente</label>
-                                <!-- Se agregó name="cliente" y required -->
                                 <input type="text" id="cliente" name="cliente" class="form-control" placeholder="Nombre completo o empresa" required>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label for="diagnostico">Falla / Diagnóstico Técnico</label>
-                            <!-- Se agregó name="falla" y required -->
                             <textarea id="diagnostico" name="falla" class="form-control" placeholder="Describa la falla reportada por el cliente o el diagnóstico de la bomba..." required></textarea>
                         </div>
                     </div>
@@ -408,9 +441,28 @@
                             <input type="text" id="buscador_refacciones" class="form-control" placeholder="Buscar refacción por nombre...">
                         </div>
 
-                        <div class="lista-vacia">
-                            No hay piezas registradas en el inventario para agregar a la cotización.
+                        <!-- Contenedor dinámico de piezas -->
+                        <div class="lista-refacciones">
+                            @forelse($refacciones as $refaccion)
+                                <div class="item-refaccion" data-nombre="{{ strtolower($refaccion->nombre) }}">
+                                    <div style="flex-grow: 1;">
+                                        <strong style="color: #002B54; font-size: 14px;">{{ $refaccion->nombre }}</strong><br>
+                                        <small style="color: #666;">Stock disponible: {{ $refaccion->cantidadStock ?? 0 }}</small>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-weight: bold; color: #4CAF50;">${{ number_format($refaccion->precio, 2) }}</span>
+                                        <button type="button" class="btn-add-pieza" title="Agregar a cotización">
+                                            <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="lista-vacia">
+                                    No hay piezas registradas en el inventario.
+                                </div>
+                            @endforelse
                         </div>
+
                     </div>
                 </div>
 
@@ -442,7 +494,6 @@
                             </div>
                             <div class="form-group" style="margin-bottom: 0; width: 140px;">
                                 <label for="mano_obra">Mano de Obra ($)</label>
-                                <!-- Se agregó name="mano_obra" -->
                                 <input type="number" step="1" min="0" id="mano_obra" name="mano_obra" class="form-control" placeholder="0.00" value="0.00">
                             </div>
                             <div class="monto-box">
@@ -451,10 +502,10 @@
                             </div>
                         </div>
                         
-                        <!-- Input oculto para enviar las refacciones seleccionadas (lo usaremos con JS más adelante) -->
+                        <!-- Input oculto para enviar el JSON de las refacciones seleccionadas -->
                         <input type="hidden" name="refacciones" id="refacciones_hidden" value="[]">
 
-                        <!-- Se cambió el button a type="submit" -->
+                        <!-- Botón Submit -->
                         <button type="submit" class="btn-aprobar">
                             <span class="material-symbols-outlined">check_circle</span>
                             Aprobar cotización y crear orden de trabajo
@@ -466,5 +517,21 @@
         </form>
     </div>
 
+    <!-- Script para el buscador en tiempo real -->
+    <script>
+        document.getElementById('buscador_refacciones').addEventListener('input', function(e) {
+            let filtro = e.target.value.toLowerCase();
+            let items = document.querySelectorAll('.item-refaccion');
+
+            items.forEach(item => {
+                let nombre = item.getAttribute('data-nombre');
+                if (nombre.includes(filtro)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -53,4 +53,4 @@ Route::delete('/refacciones/{id}', [RefaccionController::class, 'destroy']);
 
 Route::get('/venta_directa', [RefaccionController::class, 'ventaDirecta'])->name('venta_directa');
 Route::post('/venta_directa/procesar', [RefaccionController::class, 'procesarVenta'])->name('venta_directa.procesar');
-Route::post('/generar-cotizacion', [CotizController::class, 'generarCotizacion'])->name('cotizacion.generar');
+Route::get('/cotizaciones', [CotizController::class, 'index'])->name('cotizaciones.index');

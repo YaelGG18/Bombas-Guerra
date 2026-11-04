@@ -1,7 +1,9 @@
 <?php
 
+
 namespace App\Http\Controllers;
 
+use App\Models\Refaccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB; // Patrón Facade nativo de Laravel
 use App\Models\OrdenTrabajo;
@@ -9,6 +11,13 @@ use Exception;
 
 class CotizController extends Controller
 {
+
+public function index()
+{
+    // Obtenemos todas las refacciones (puedes filtrar por stock > 0 si lo deseas)
+    $refacciones = Refaccion::all(); 
+    return view('cotizaciones', compact('refacciones'));
+}
     public function generarCotizacion(Request $request)
     {
         // 1. Validación
