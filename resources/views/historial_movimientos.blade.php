@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BOMBAS GUERRA - Historial y Reportes</title>
-    <!-- Iconos de Google Material Symbols -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #EAEFF2; min-height: 100vh; display: flex; }
 
-        /* Menú Lateral (Sidebar) */
+        /* Menú Lateral */
         .sidebar { width: 260px; background-color: #002347; color: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; }
         .sidebar-header { padding: 25px 20px; border-bottom: 2px solid #FFCC00; text-decoration: none; display: block; transition: background-color 0.2s; }
         .sidebar-header:hover { background-color: #001f3f; }
@@ -31,7 +30,7 @@
         .titulo-pagina h1 { color: #002B54; font-size: 24px; margin-bottom: 5px; }
         .titulo-pagina p { color: #666; font-size: 14px; }
 
-        /* Pestañas (Tabs) */
+        /* Pestañas */
         .tabs-container { display: flex; gap: 30px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
         .tab-btn { background: none; border: none; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; color: #888; font-weight: normal; transition: 0.2s; }
         .tab-btn:hover { color: #555; }
@@ -55,7 +54,7 @@
         td { padding: 12px 20px; border-bottom: 1px solid #f0f0f0; color: #333; }
         .mensaje-vacio { text-align: center; padding: 40px !important; color: #888; }
 
-        /* Footer de la página */
+        /* Footer */
         .footer-acciones { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .nota-auditoria { font-size: 11px; color: #888; font-style: italic; }
         .btn-exportar { background-color: #FFCC00; color: #000; border: none; padding: 10px 20px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
@@ -74,7 +73,6 @@
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>
-
             <ul class="sidebar-menu">
                 <li><a href="/inventario"><span class="material-symbols-outlined">inventory_2</span> Inventario</a></li>
                 <li><a href="/registrar_entrada"><span class="material-symbols-outlined">move_to_inbox</span> Registrar Entrada</a></li>
@@ -85,7 +83,6 @@
                 <li><a href="/historial_movimientos" class="activo"><span class="material-symbols-outlined">bar_chart</span> Historial y Reportes</a></li>
             </ul>
         </div>
-
         <a href="/" class="sidebar-footer" title="Cerrar Sesión">
             <span class="material-symbols-outlined icono-admin">account_circle</span>
             <div class="info-admin">
@@ -115,7 +112,7 @@
             </button>
         </div>
 
-        <!-- Filtros Comunes envueltos en Formulario GET -->
+        <!-- Filtros Comunes -->
         <form action="/historial_movimientos" method="GET" class="filtros-grid" id="formFiltros">
             <input type="hidden" name="tab" id="inputTab" value="{{ $tabActiva }}">
             <div class="form-group">
@@ -134,7 +131,7 @@
                 <label>Búsqueda Rápida</label>
                 <div class="input-contenedor con-icono">
                     <span class="material-symbols-outlined icono-input">search</span>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Folio OT, Cliente, Falla..." onchange="this.form.submit()">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Folio OT, Cliente..." onchange="this.form.submit()">
                 </div>
             </div>
         </form>
@@ -159,7 +156,7 @@
                             <tr>
                                 <td><strong>{{ $ot->folioOT }}</strong></td>
                                 <td>{{ $ot->fechaCreacion }}</td>
-                                ><td>
+                                <td>
                                     {{ $ot->nombreCliente }}<br>
                                     <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
                                 </td>
@@ -179,7 +176,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="mensaje-vacio">
-                                    No se encontraron registros de órdenes de trabajo en el período seleccionado.
+                                    Utilice los filtros de fecha o la búsqueda rápida para consultar las órdenes de trabajo.
                                 </td>
                             </tr>
                         @endforelse
@@ -198,7 +195,6 @@
                             <th>Fecha</th>
                             <th>Cliente (Mostrador)</th>
                             <th>Cant. Artículos</th>
-                            <th>Descuento</th>
                             <th>Total ($)</th>
                             <th>Estado</th>
                         </tr>
@@ -206,18 +202,17 @@
                     <tbody>
                         @forelse($ventas as $v)
                             <tr>
-                                <td><strong>{{ $v->folioTicket ?? 'N/A' }}</strong></td>
-                                <td>{{ $v->created_at ?? '-' }}</td>
-                                <td>{{ $v->clienteMostrador ?? 'Público General' }}</td>
-                                <td>{{ $v->cantidadArticulos ?? 1 }}</td>
-                                <td>${{ number_format($v->descuento ?? 0, 2) }}</td>
-                                <td><strong>${{ number_format($v->total ?? 0, 2) }}</strong></td>
-                                <td>Completado</td>
+                                <td><strong>{{ $v->folioTicket }}</strong></td>
+                                <td>{{ $v->created_at }}</td>
+                                <td>{{ $v->clienteMostrador }}</td>
+                                <td>{{ $v->cantidadArticulos }} unids.</td>
+                                <td><strong>${{ number_format($v->total, 2) }}</strong></td>
+                                <td><span style="color: #065f46; font-weight: bold;">Completado</span></td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="mensaje-vacio">
-                                    No se encontraron ventas directas registradas en el período seleccionado.
+                                <td colspan="6" class="mensaje-vacio">
+                                    Utilice los filtros de fecha o la búsqueda rápida para consultar las ventas directas.
                                 </td>
                             </tr>
                         @endforelse
@@ -231,13 +226,13 @@
             <p class="nota-auditoria">* Toda reimpresión o exportación queda registrada bajo auditoría de Admin Taller.</p>
             <button class="btn-exportar" id="btn-accion-exportar" onclick="window.print()">
                 <span class="material-symbols-outlined" style="font-size: 18px;">picture_as_pdf</span> 
-                <span id="btnTextoExportar">Exportar OT a PDF</span>
+                <span id="btnTextoExportar">Exportar Venta Directa a PDF</span>
             </button>
         </div>
 
     </div>
 
-    <!-- Script para cambiar entre pestañas y exportar -->
+    <!-- Script para cambiar entre pestañas -->
     <script>
         function cambiarTab(tab) {
             document.getElementById('btn-tab-ot').classList.remove('activo');

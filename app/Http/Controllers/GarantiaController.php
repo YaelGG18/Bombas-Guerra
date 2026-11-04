@@ -4,105 +4,77 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Exception;
 
-class GarantiaController extends Controller
+class HistorialReporteController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $otParam = $request->input('ot');
+        $fechaInicio = $request->input('fecha_inicio');
+        $fechaFin    = $request->input('fecha_fin');
+        $search      = $request->input('search');
+        $tabActiva   = $request->input('tab', 'ot');
 
-        if (!$search && !$otParam) {
-            $garantias = collect();
-        } else {
-            $query = DB::table('garantia')
-                ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
-                ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-                ->select(
-                    'garantia.*',
-                    'orden_trabajo.folioOT',
-                    'cliente.nombreCliente',
-                    'cliente.telefono'
-                );
+        // Si no hay filtros de fecha ni búsqueda, las listas arrancan vacías
+        if (!$fechaInicio && !$fechaFin && !$search) {
+            $ordenes = collect();
+            $ventas  = collect();
+            return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
+        }
 
+        // --- 1. CONSULTA DE ÓRDENES DE TRABAJO ---
+        $queryOT = DB::table('orden_trabajo')
+            ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+            ->select(
+                'orden_trabajo.*',
+                'cliente.nombreCliente',
+                'cliente.telefono'
+            );
+
+        if ($fechaInicio) {
+            $queryOT->whereDate('orden_trabajo.fechaCreacion', '>=', $fechaInicio);
+        }
+        if ($fechaFin) {
+            $queryOT->whereDate('orden_trabajo.fechaCreacion', '<=', $fechaFin);
+        }
+        if ($search) {
+            $queryOT->where(function($q) use ($search) {
+                $q->where('orden_trabajo.folioOT', 'LIKE', "%{$search}%")
+                  ->orWhere('cliente.nombreCliente', 'LIKE', "%{$search}%")
+                  ->orWhere('orden_trabajo.diagnosticoFalla', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $ordenes = $queryOT->orderBy('orden_trabajo.fechaCreacion', 'desc')->get();
+
+        foreach ($ordenes as $ot) {
+            $detalles = DB::table('detalle_ot')->where('idOT', $ot->idOT)->get();
+            $subtotalRefacciones = $detalles->sum(fn($item) => $item->cantidad * $item->precioUnitarioHistorico);
+            $ot->refaccionesTotal = $subtotalRefacciones;
+            $ot->totalGeneral     = $subtotalRefacciones + $ot->costoManoObra;
+        }
+
+        // --- 2. CONSULTA DE VENTAS DIRECTAS ---
+        $ventas = collect();
+        try {
+            $queryVentas = DB::table('venta_directa');
+
+            if ($fechaInicio) {
+                $queryVentas->whereDate('created_at', '>=', $fechaInicio);
+            }
+            if ($fechaFin) {
+                $queryVentas->whereDate('created_at', '<=', $fechaFin);
+            }
             if ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('garantia.codigoVerificacion', 'LIKE', "%{$search}%")
-                      ->orWhere('orden_trabajo.folioOT', 'LIKE', "%{$search}%")
-                      ->orWhere('cliente.nombreCliente', 'LIKE', "%{$search}%")
-                      ->orWhere('cliente.telefono', 'LIKE', "%{$search}%");
+                $queryVentas->where(function($q) use ($search) {
+                    $q->where('folioTicket', 'LIKE', "%{$search}%")
+                      ->orWhere('clienteMostrador', 'LIKE', "%{$search}%");
                 });
             }
-
-            $garantias = $query->orderBy('garantia.fechalinicio', 'desc')->get();
+            $ventas = $queryVentas->orderBy('idVenta', 'desc')->get();
+        } catch (\Exception $e) {
+            // Excepción silenciosa si ocurriera
         }
 
-        $hoy = Carbon::now();
-        $todasGarantias = DB::table('garantia')->get();
-        
-        $vigentesCount = 0;
-        $vencidasCount = 0;
-
-        foreach ($todasGarantias as $g) {
-            $fechaInicio = Carbon::parse($g->fechalinicio);
-            $fechaVencimiento = $fechaInicio->copy()->addDays($g->vigenciaDias);
-
-            if ($hoy->greaterThan($fechaVencimiento)) {
-                $vencidasCount++;
-                if ($g->estadoGarantia === 'Vigente') {
-                    DB::table('garantia')->where('idGarantia', $g->idGarantia)->update(['estadoGarantia' => 'Vencida']);
-                }
-            } else {
-                $vigentesCount++;
-            }
-        }
-
-        $totalGarantias = DB::table('garantia')->count();
-
-        $ordenesTerminadas = DB::table('orden_trabajo')
-            ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-            ->select('orden_trabajo.idOT', 'orden_trabajo.folioOT', 'cliente.nombreCliente')
-            ->where('orden_trabajo.estadoOT', 'Terminado')
-            ->whereNotExists(function ($query) {
-                $query->select(DB::raw(1))
-                      ->from('garantia')
-                      ->whereRaw('garantia.idOT = orden_trabajo.idOT');
-            })
-            ->get();
-
-        return view('garantias', compact('garantias', 'ordenesTerminadas', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'search'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'idOT'         => 'required|integer',
-            'vigenciaDias' => 'required|integer|min:1'
-        ]);
-
-        $ot = DB::table('orden_trabajo')->where('idOT', $request->idOT)->first();
-
-        if (!$ot || $ot->estadoOT !== 'Terminado') {
-            return back()->with('error', 'Solo se puede emitir garantía a Órdenes de Trabajo que se encuentren en estado Terminado.');
-        }
-
-        try {
-            $codigoVerificacion = 'GAR-' . str_replace('OT-', '', $ot->folioOT) . '-' . rand(100, 999);
-
-            DB::table('garantia')->insert([
-                'idOT'               => $request->idOT,
-                'codigoVerificacion' => $codigoVerificacion,
-                'fechalinicio'       => now()->toDateString(),
-                'vigenciaDias'       => $request->vigenciaDias,
-                'estadoGarantia'     => 'Vigente'
-            ]);
-
-            return redirect('/garantias?search=' . $codigoVerificacion)->with('success', '¡Garantía registrada con éxito! Código: ' . $codigoVerificacion);
-
-        } catch (Exception $e) {
-            return back()->with('error', 'Error al registrar la garantía: ' . $e->getMessage());
-        }
+        return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
     }
 }
