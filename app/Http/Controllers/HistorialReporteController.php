@@ -10,6 +10,9 @@ class HistorialReporteController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        
+        // Definimos la pestaña activa por defecto ('ot' o 'ventas')
+        $tabActiva = $request->input('tab', 'ot');
 
         // 1. Consultar Historial de Órdenes de Trabajo
         $queryOT = DB::table('orden_trabajo')
@@ -35,7 +38,7 @@ class HistorialReporteController extends Controller
         
         $ventas = $queryVentas->get();
 
-        // Retornar ambas variables a la vista
-        return view('historial_movimientos', compact('ordenes', 'ventas'));
+        // Enviamos $tabActiva junto con los datos a la vista
+        return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva'));
     }
 }
