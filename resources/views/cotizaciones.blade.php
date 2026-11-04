@@ -257,6 +257,25 @@
         .btn-aprobar:hover {
             background-color: #e6b800;
         }
+        
+        /* Estilos para las alertas de Laravel */
+        .alerta {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .alerta-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alerta-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
@@ -333,96 +352,118 @@
             </div>
         </div>
 
-        <div class="grid-cotizacion">
-            
-            <!-- Columna Izquierda -->
-            <div>
-                <!-- Datos del Trabajo y Cliente -->
-                <div class="card-modulo">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined">person</span>
-                        <h3>Datos del Trabajo y Cliente</h3>
-                    </div>
+        <!-- ALERTAS DE LARAVEL INSERTADAS AQUÍ -->
+        @if(session('success'))
+            <div class="alerta alerta-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alerta alerta-error">{{ session('error') }}</div>
+        @endif
 
-                    <div class="form-row-2">
+        <!-- FORMULARIO ENVOLVIENDO TODO EL CONTENIDO DEL GRID -->
+        <form action="{{ route('cotizacion.generar') }}" method="POST">
+            @csrf <!-- Obligatorio -->
+
+            <div class="grid-cotizacion">
+                
+                <!-- Columna Izquierda -->
+                <div>
+                    <!-- Datos del Trabajo y Cliente -->
+                    <div class="card-modulo">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined">person</span>
+                            <h3>Datos del Trabajo y Cliente</h3>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="telefono">Número Telefónico</label>
+                                <!-- Se agregó name="telefono" -->
+                                <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ej. 477 123 4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="cliente">Nombre del Cliente</label>
+                                <!-- Se agregó name="cliente" y required -->
+                                <input type="text" id="cliente" name="cliente" class="form-control" placeholder="Nombre completo o empresa" required>
+                            </div>
+                        </div>
+
                         <div class="form-group">
-                            <label for="telefono">Número Telefónico</label>
-                            <input type="text" id="telefono" class="form-control" placeholder="Ej. 477 123 4567">
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente">Nombre del Cliente</label>
-                            <input type="text" id="cliente" class="form-control" placeholder="Nombre completo o empresa">
+                            <label for="diagnostico">Falla / Diagnóstico Técnico</label>
+                            <!-- Se agregó name="falla" y required -->
+                            <textarea id="diagnostico" name="falla" class="form-control" placeholder="Describa la falla reportada por el cliente o el diagnóstico de la bomba..." required></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="diagnostico">Falla / Diagnóstico Técnico</label>
-                        <textarea id="diagnostico" class="form-control" placeholder="Describa la falla reportada por el cliente o el diagnóstico de la bomba..."></textarea>
+                    <!-- Catálogo de Refacciones -->
+                    <div class="card-modulo">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined">category</span>
+                            <h3>Catálogo de Refacciones</h3>
+                        </div>
+
+                        <div class="search-box">
+                            <span class="material-symbols-outlined">search</span>
+                            <!-- Este input no lleva name porque solo se usará con JavaScript para buscar -->
+                            <input type="text" id="buscador_refacciones" class="form-control" placeholder="Buscar refacción por nombre...">
+                        </div>
+
+                        <div class="lista-vacia">
+                            No hay piezas registradas en el inventario para agregar a la cotización.
+                        </div>
                     </div>
                 </div>
 
-                <!-- Catálogo de Refacciones -->
-                <div class="card-modulo">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined">category</span>
-                        <h3>Catálogo de Refacciones</h3>
+                <!-- Columna Derecha -->
+                <div>
+                    <!-- Desglose de Refacciones Seleccionadas -->
+                    <div class="card-modulo">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined">shopping_bag</span>
+                            <h3>Desglose de Refacciones Seleccionadas</h3>
+                        </div>
+
+                        <div class="lista-vacia">
+                            Aún no se han seleccionado refacciones para esta cotización.
+                        </div>
                     </div>
 
-                    <div class="search-box">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" class="form-control" placeholder="Buscar refacción por nombre...">
-                    </div>
+                    <!-- Resumen de Costos y Mano de Obra -->
+                    <div class="card-modulo">
+                        <div class="card-header">
+                            <span class="material-symbols-outlined">receipt_long</span>
+                            <h3>Resumen de Costos y Mano de Obra</h3>
+                        </div>
 
-                    <div class="lista-vacia">
-                        No hay piezas registradas en el inventario para agregar a la cotización.
+                        <div class="resumen-filas">
+                            <div class="monto-box">
+                                <h4>Subtotal Refacciones</h4>
+                                <p>$0.00</p>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0; width: 140px;">
+                                <label for="mano_obra">Mano de Obra ($)</label>
+                                <!-- Se agregó name="mano_obra" -->
+                                <input type="number" step="1" min="0" id="mano_obra" name="mano_obra" class="form-control" placeholder="0.00" value="0.00">
+                            </div>
+                            <div class="monto-box">
+                                <h4>Total Cotización</h4>
+                                <p>$0.00</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Input oculto para enviar las refacciones seleccionadas (lo usaremos con JS más adelante) -->
+                        <input type="hidden" name="refacciones" id="refacciones_hidden" value="[]">
+
+                        <!-- Se cambió el button a type="submit" -->
+                        <button type="submit" class="btn-aprobar">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Aprobar cotización y crear orden de trabajo
+                        </button>
                     </div>
                 </div>
+
             </div>
-
-            <!-- Columna Derecha -->
-            <div>
-                <!-- Desglose de Refacciones Seleccionadas -->
-                <div class="card-modulo">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined">shopping_bag</span>
-                        <h3>Desglose de Refacciones Seleccionadas</h3>
-                    </div>
-
-                    <div class="lista-vacia">
-                        Aún no se han seleccionado refacciones para esta cotización.
-                    </div>
-                </div>
-
-                <!-- Resumen de Costos y Mano de Obra -->
-                <div class="card-modulo">
-                    <div class="card-header">
-                        <span class="material-symbols-outlined">receipt_long</span>
-                        <h3>Resumen de Costos y Mano de Obra</h3>
-                    </div>
-
-                    <div class="resumen-filas">
-                        <div class="monto-box">
-                            <h4>Subtotal Refacciones</h4>
-                            <p>$0.00</p>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0; width: 140px;">
-                            <label for="mano_obra">Mano de Obra ($)</label>
-                            <input type="number" step="1" min="0" id="mano_obra" class="form-control" placeholder="0.00" value="0.00">
-                        </div>
-                        <div class="monto-box">
-                            <h4>Total Cotización</h4>
-                            <p>$0.00</p>
-                        </div>
-                    </div>
-
-                    <button class="btn-aprobar">
-                        <span class="material-symbols-outlined">check_circle</span>
-                        Aprobar cotización y crear orden de trabajo
-                    </button>
-                </div>
-            </div>
-
-        </div>
+        </form>
     </div>
 
 </body>
