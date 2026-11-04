@@ -15,14 +15,14 @@ class GarantiaController extends Controller
     {
         $search = $request->input('search');
 
-        // Consultar Garantías registradas (Corregido a orden_trabajo.idOT)
+        // Consultar Garantías registradas
         $query = DB::table('garantia')
             ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
             ->select(
                 'garantia.*', 
                 'orden_trabajo.idOT as idOT', 
-                'orden_trabajo.fecha', 
+                'orden_trabajo.fechaCreacion as fecha', // Actualizado según la BD
                 'cliente.nombre as nombre_cliente',
                 'cliente.telefono'
             );
@@ -49,10 +49,10 @@ class GarantiaController extends Controller
             }
         }
 
-        // Órdenes Terminadas disponibles para emitir nueva garantía (Corregido a orden_trabajo.idOT)
+        // Órdenes Terminadas disponibles para emitir nueva garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
-            ->where('orden_trabajo.estado', 'Terminada') 
+            ->where('orden_trabajo.estadoOT', 'Terminada') // Actualizado según la BD
             ->whereNotIn('orden_trabajo.idOT', function($q) {
                 $q->select('idOT')->from('garantia'); 
             })
@@ -95,15 +95,14 @@ class GarantiaController extends Controller
         $codigo = $request->input('codigo_garantia');
 
         try {
-            // (Corregido a orden_trabajo.idOT)
             $resultado = DB::table('garantia')
                 ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
                 ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
                 ->where('garantia.codigo_unico', $codigo)
                 ->select(
                     'garantia.*', 
-                    'orden_trabajo.falla',
-                    'orden_trabajo.fecha as fecha_reparacion',
+                    'orden_trabajo.diagnosticoFalla', // Actualizado según la BD
+                    'orden_trabajo.fechaCreacion as fecha_reparacion', // Actualizado según la BD
                     'cliente.nombre as nombre_cliente'
                 )
                 ->first();
