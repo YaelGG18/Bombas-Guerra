@@ -33,7 +33,6 @@ class OrdenTrabajoController extends Controller
                 ->get();
         }
 
-        // Adjuntar refacciones y calcular el Total (Mano de obra + refacciones) para cada orden
         foreach ($ordenes as $ot) {
             $ot->refacciones = DB::table('detalle_ot')
                 ->join('refacciones', 'detalle_ot.idRefaccion', '=', 'refacciones.id')
@@ -69,6 +68,12 @@ class OrdenTrabajoController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Validar si la orden ya está terminada
+        $ordenActual = DB::table('orden_trabajo')->where('idOT', $id)->first();
+        if ($ordenActual && $ordenActual->estadoOT === 'Terminado') {
+            return back()->with('error', 'Esta Orden de Trabajo ya se encuentra Terminada y cuenta con garantía asignada. No se puede modificar.');
+        }
+
         $request->validate([
             'diagnosticoFalla' => 'required|string',
             'costoManoObra'    => 'required|numeric|min:0',

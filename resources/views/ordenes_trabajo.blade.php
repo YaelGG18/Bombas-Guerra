@@ -59,6 +59,7 @@
 
         .btn-modificar { background-color: #002347; color: #FFCC00; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn-modificar:hover { background-color: #003366; }
+        .btn-modificar:disabled { background-color: #cccccc; color: #666666; cursor: not-allowed; }
 
         .btn-crear-ot { background-color: #FFCC00; color: #002347; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
         .btn-crear-ot:hover { background-color: #e6b800; }
@@ -76,6 +77,7 @@
         .form-row-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
 
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #d4edda; color: #155724; }
+        .alert-error { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
@@ -118,6 +120,9 @@
         @if(session('success'))
             <div class="alert">{{ session('success') }}</div>
         @endif
+        @if(session('error'))
+            <div class="alert-error">{{ session('error') }}</div>
+        @endif
 
         <!-- Tarjetas de Estado -->
         <div class="grid-stats">
@@ -156,7 +161,7 @@
                         <th>Fecha</th>
                         <th>Cliente / Tel.</th>
                         <th>Falla / Diagnóstico</th>
-                        <th>Total ($)</th> <!-- Columna Total corregida -->
+                        <th>Total ($)</th>
                         <th>Estado</th>
                         <th>Cambiar Estado</th>
                         <th>Acción</th>
@@ -172,7 +177,7 @@
                                 <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
                             </td>
                             <td>{{ $ot->diagnosticoFalla }}</td>
-                            <td><strong>${{ number_format($ot->totalGeneral, 2) }}</strong></td> <!-- Muestra el Total calculado -->
+                            <td><strong>${{ number_format($ot->totalGeneral, 2) }}</strong></td>
                             <td>
                                 @if($ot->estadoOT == 'En Proceso')
                                     <span class="badge-estado estado-proceso">En Proceso</span>
@@ -193,7 +198,11 @@
                                 </form>
                             </td>
                             <td>
-                                <button class="btn-modificar" onclick='abrirModalEditar(@json($ot))'>Modificar</button>
+                                @if($ot->estadoOT == 'Terminado')
+                                    <button class="btn-modificar" disabled title="Orden terminada y con garantía asignada. No se puede modificar.">Bloqueado</button>
+                                @else
+                                    <button class="btn-modificar" onclick='abrirModalEditar(@json($ot))'>Modificar</button>
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -330,7 +339,7 @@
                 <h2>Crear Nueva Orden de Trabajo Directa</h2>
                 <button class="btn-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
-            <!-- Ruta corregida explícitamente para asegurar el envío del formulario -->
+            <!-- Formulario conectado mediante POST a la ruta correspondiente -->
             <form action="{{ route('ordenes_trabajo.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="refacciones" id="inputRefaccionesJson">
