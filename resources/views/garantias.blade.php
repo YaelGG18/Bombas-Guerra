@@ -156,13 +156,17 @@
                         <th>Folio OT</th>
                         <th>Cliente / Tel.</th>
                         <th>Fecha Inicio</th>
-                        <th>Vigencia (Días)</th>
+                        <th>Vigencia</th>
+                        <th>Fecha de Vencimiento</th> <!-- Columna nueva agregada -->
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($garantias as $gar)
+                        @php
+                            $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
+                        @endphp
                         <tr>
                             <td><strong>{{ $gar->codigoVerificacion }}</strong></td>
                             <td>{{ $gar->folioOT }}</td>
@@ -172,6 +176,7 @@
                             </td>
                             <td>{{ $gar->fechalinicio }}</td>
                             <td>{{ $gar->vigenciaDias }} días</td>
+                            <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td> <!-- Muestra la fecha calculada -->
                             <td>
                                 @if($gar->estadoGarantia == 'Vigente')
                                     <span class="badge-vigente">Vigente</span>
@@ -180,14 +185,14 @@
                                 @endif
                             </td>
                             <td>
-                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}')">
+                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
                                 </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="mensaje-vacio">
+                            <td colspan="8" class="mensaje-vacio">
                                 {{ request('search') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
                             </td>
                         </tr>
@@ -220,6 +225,7 @@
         <div><strong>Cliente:</strong> <span id="t_cliente"></span></div>
         <div><strong>F. Emisión:</strong> <span id="t_inicio"></span></div>
         <div><strong>Vigencia:</strong> <span id="t_vigencia"></span> días</div>
+        <div><strong>Vence el:</strong> <span id="t_vencimiento"></span></div>
         <div>--------------------------------</div>
         <div style="text-align: center; font-size: 10px;">¡Conserve este ticket para hacer válida su garantía en taller!</div>
     </div>
@@ -260,14 +266,14 @@
         function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
         function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
 
-        function imprimirTicket(codigo, folio, cliente, inicio, vigencia) {
+        function imprimirTicket(codigo, folio, cliente, inicio, vigencia, vencimiento) {
             document.getElementById('t_codigo').innerText = codigo;
             document.getElementById('t_folio').innerText = folio;
             document.getElementById('t_cliente').innerText = cliente;
             document.getElementById('t_inicio').innerText = inicio;
             document.getElementById('t_vigencia').innerText = vigencia;
+            document.getElementById('t_vencimiento').innerText = vencimiento;
 
-            // Mostrar temporalmente el ticket para impresión y ejecutar ventana de impresión
             let ticketDiv = document.getElementById('ticketImpresion');
             ticketDiv.style.display = 'block';
             window.print();
