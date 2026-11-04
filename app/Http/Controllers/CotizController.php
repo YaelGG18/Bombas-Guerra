@@ -9,6 +9,7 @@ use Exception;
 
 class CotizController extends Controller
 {
+    
     // Método para cargar la página
     public function index()
     {
@@ -92,3 +93,4 @@ class CotizController extends Controller
             return redirect()->back()->with('error', 'Error en la base de datos: ' . $e->getMessage());
         }
     }
+}
