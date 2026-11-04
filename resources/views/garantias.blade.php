@@ -8,84 +8,43 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
         body { background-color: #EAEFF2; min-height: 100vh; display: flex; }
-
+        
         /* Menú Lateral */
-        .sidebar { width: 260px; background-color: #002347; color: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; flex-shrink: 0; }
+        .sidebar { width: 260px; background-color: #002347; color: white; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; }
         .sidebar-header { padding: 25px 20px; border-bottom: 2px solid #FFCC00; text-decoration: none; display: block; }
         .sidebar-header h2 { font-size: 16px; color: #FFCC00; letter-spacing: 1px; }
         .sidebar-header p { font-size: 11px; color: #b0c4de; }
         .sidebar-menu { list-style: none; padding: 20px 0; flex-grow: 1; }
         .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #cce0ff; text-decoration: none; font-size: 14px; }
+        
+        /* Corregido: La clase activo ahora resaltará amarillo en CSS */
         .sidebar-menu li a:hover, .sidebar-menu li a.activo { background-color: #003366; color: #FFCC00; border-left: 4px solid #FFCC00; }
+        
         .sidebar-footer { padding: 20px; background-color: #001833; display: flex; align-items: center; gap: 10px; text-decoration: none; color: white; }
         .sidebar-footer .icono-admin { color: #FFCC00; font-size: 32px; }
         .sidebar-footer .info-admin { font-size: 12px; }
         .sidebar-footer .estado { font-size: 10px; color: #4CAF50; }
 
         /* Contenido Principal */
-        .main-content { flex-grow: 1; padding: 30px; min-width: 0; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .main-content { flex-grow: 1; padding: 30px; }
+        .top-header { margin-bottom: 25px; }
         .titulo-pagina h1 { color: #002B54; font-size: 24px; margin-bottom: 4px; }
         .titulo-pagina p { color: #666; font-size: 14px; }
-
-        /* Tarjetas de Estadísticas */
-        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; max-width: 750px; }
-        .card-stat { background-color: white; border-radius: 8px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
-        .card-stat .numero { font-size: 28px; font-weight: bold; color: #002B54; }
-        .card-stat .label h4 { font-size: 13px; color: #333; }
-        .card-stat .label p { font-size: 11px; color: #888; }
-
-        /* Buscador */
-        .bar-busqueda { display: flex; gap: 10px; margin-bottom: 20px; }
-        .bar-busqueda input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; outline: none; }
-        .btn-filtrar { background-color: #002B54; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; }
-        .btn-filtrar:hover { background-color: #001f3f; }
-
-        /* Tabla */
-        .contenedor-tabla { background-color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow-x: auto; margin-bottom: 25px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-        thead tr { background-color: #F4F7F9; color: #444; border-bottom: 2px solid #E0E0E0; }
-        th, td { padding: 14px 16px; border-bottom: 1px solid #eee; }
-        .mensaje-vacio { text-align: center; padding: 40px !important; color: #888; }
-        .footer-tabla { padding: 15px 20px; background-color: #F4F7F9; color: #666; font-size: 12px; border-top: 1px solid #E0E0E0; display: flex; justify-content: space-between; }
-
-        .badge-vigente { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
-        .badge-vencida { padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; background-color: #fee2e2; color: #991b1b; }
-
-        .btn-crear { background-color: #FFCC00; color: #002347; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-crear:hover { background-color: #e6b800; }
-
-        .btn-imprimir { background-color: #002347; color: #FFCC00; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-imprimir:hover { background-color: #003366; }
-
-        /* Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: white; border-radius: 10px; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcdcdc; padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-header h2 { color: #002B54; font-size: 18px; }
-        .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
-
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; color: #002B54; margin-bottom: 6px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 14px; outline: none; }
-
-        .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #d4edda; color: #155724; }
-        .alert-error { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #f8d7da; color: #721c24; }
-
-        /* Estilo para impresión de ticket térmico */
-        @media print {
-            body * { visibility: hidden; }
-            #ticketImpresion, #ticketImpresion * { visibility: visible; }
-            #ticketImpresion { position: absolute; left: 0; top: 0; width: 100%; padding: 10px; font-family: monospace; font-size: 12px; color: black; background: white; }
-        }
+        
+        .card-modulo { background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .search-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .search-container input { flex-grow: 1; padding: 12px 15px; border: 1px solid #dcdcdc; border-radius: 6px; font-size: 14px; outline: none; }
+        .btn-buscar { background-color: #002B54; color: white; border: none; padding: 0 25px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .btn-buscar:hover { background-color: #001f3f; }
+        
+        .lista-vacia { border: 1px dashed #ccc; border-radius: 6px; padding: 40px; text-align: center; color: #888; font-size: 14px; background-color: #fafafa; }
     </style>
 </head>
 <body>
 
-    <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
-            <a href="/barratareas" class="sidebar-header" title="Volver al Dashboard">
+            <a href="/barratareas" class="sidebar-header">
                 <h2>BOMBAS GUERRA</h2>
                 <p>CONTROL DE INVENTARIOS</p>
             </a>
@@ -95,6 +54,7 @@
                 <li><a href="/venta_directa"><span class="material-symbols-outlined">shopping_cart</span> Venta Directa</a></li>
                 <li><a href="/cotizaciones"><span class="material-symbols-outlined">request_quote</span> Cotizaciones</a></li>
                 <li><a href="/ordenes_trabajo"><span class="material-symbols-outlined">build</span> Órdenes de Trabajo</a></li>
+                <!-- Clase ACTIVO aplicada correctamente al módulo de Garantías -->
                 <li><a href="/garantias" class="activo"><span class="material-symbols-outlined">verified_user</span> Garantías</a></li>
                 <li><a href="/historial_movimientos"><span class="material-symbols-outlined">bar_chart</span> Historial y Reportes</a></li>
             </ul>
@@ -108,187 +68,28 @@
         </a>
     </div>
 
-    <!-- Contenido Principal -->
     <div class="main-content">
         <div class="top-header">
             <div class="titulo-pagina">
-                <h1>Gestión de Garantías</h1>
-                <p>Control de pólizas y códigos de verificación para reparaciones concluidas.</p>
+                <h1>Validación de Garantías</h1>
+                <p>Consulta el estado de una reparación ingresando su código único de verificación.</p>
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert">{{ session('success') }}</div>
-        @endif
-        @if(session('error'))
-            <div class="alert-error">{{ session('error') }}</div>
-        @endif
-
-        <div class="grid-stats">
-            <div class="card-stat">
-                <div class="numero">{{ $totalGarantias }}</div>
-                <div class="label"><h4>Total Registradas</h4><p>Pólizas emitidas</p></div>
+        <div class="card-modulo">
+            <div class="search-container">
+                <input type="text" id="codigo_garantia" placeholder="Ingrese el código único de garantía (Ej. BG-X8A2)...">
+                <button type="button" class="btn-buscar">
+                    <span class="material-symbols-outlined">search</span> Buscar Código
+                </button>
             </div>
-            <div class="card-stat">
-                <div class="numero" style="color: #27ae60;">{{ $vigentesCount }}</div>
-                <div class="label"><h4>Vigentes</h4><p>Garantías activas</p></div>
-            </div>
-            <div class="card-stat">
-                <div class="numero" style="color: #c0392b;">{{ $vencidasCount }}</div>
-                <div class="label"><h4>Vencidas</h4><p>Pólizas expiradas</p></div>
-            </div>
-        </div>
 
-        <!-- Buscador -->
-        <form action="/garantias" method="GET" class="bar-busqueda">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por Código de Garantía, Folio OT o Cliente...">
-            <button type="submit" class="btn-filtrar">
-                <span class="material-symbols-outlined">search</span> Buscar
-            </button>
-        </form>
-
-        <!-- Tabla -->
-        <div class="contenedor-tabla">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código Garantía</th>
-                        <th>Folio OT</th>
-                        <th>Cliente / Tel.</th>
-                        <th>Fecha Inicio</th>
-                        <th>Vigencia</th>
-                        <th>Fecha de Vencimiento</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($garantias as $gar)
-                        @php
-                            $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
-                        @endphp
-                        <tr>
-                            <td><strong>{{ $gar->codigoVerificacion }}</strong></td>
-                            <td>{{ $gar->folioOT }}</td>
-                            <td>
-                                {{ $gar->nombreCliente }}<br>
-                                <small style="color: #003366; font-weight: bold;">Tel: {{ $gar->telefono }}</small>
-                            </td>
-                            <td>{{ $gar->fechalinicio }}</td>
-                            <td>{{ $gar->vigenciaDias }} días</td>
-                            <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td>
-                            <td>
-                                @if($gar->estadoGarantia == 'Vigente')
-                                    <span class="badge-vigente">Vigente</span>
-                                @else
-                                    <span class="badge-vencida">Vencida</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
-                                    <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="mensaje-vacio">
-                                {{ request('search') || request('ot') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-            <div class="footer-tabla">
-                <span>Mostrando {{ count($garantias) }} registros</span>
-                <span>BOMBAS GUERRA S.A. DE C.V.</span>
+            <div class="lista-vacia">
+                <span class="material-symbols-outlined" style="font-size: 48px; color: #ccc; margin-bottom: 10px;">qr_code_scanner</span>
+                <br>Ingrese un código en la barra de búsqueda para verificar la validez y los detalles de la garantía.
             </div>
-        </div>
-
-        <!-- Botón Inferior -->
-        <div style="margin-top: 20px;">
-            <button class="btn-crear" onclick="abrirModalGarantia()">
-                <span class="material-symbols-outlined">add_circle</span> Emitir Nueva Garantía
-            </button>
         </div>
     </div>
 
-    <!-- TICKET OCULTO PARA IMPRESIÓN TÉRMICA -->
-    <div id="ticketImpresion" style="display: none;">
-        <div style="text-align: center; font-weight: bold;">BOMBAS GUERRA S.A. DE C.V.</div>
-        <div style="text-align: center;">CONTROL DE TALLER E INVENTARIOS</div>
-        <div style="text-align: center;">--------------------------------</div>
-        <div style="text-align: center; font-size: 14px; font-weight: bold;">PÓLIZA DE GARANTÍA</div>
-        <div>--------------------------------</div>
-        <div><strong>Código:</strong> <span id="t_codigo"></span></div>
-        <div><strong>Folio OT:</strong> <span id="t_folio"></span></div>
-        <div><strong>Cliente:</strong> <span id="t_cliente"></span></div>
-        <div><strong>F. Emisión:</strong> <span id="t_inicio"></span></div>
-        <div><strong>Vigencia:</strong> <span id="t_vigencia"></span> días</div>
-        <div><strong>Vence el:</strong> <span id="t_vencimiento"></span></div>
-        <div>--------------------------------</div>
-        <div style="text-align: center; font-size: 10px;">¡Conserve este ticket para hacer válida su garantía en taller!</div>
-    </div>
-
-    <!-- MODAL EMITIR GARANTÍA -->
-    <div class="modal-overlay" id="modalGarantia">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h2>Emitir Póliza de Garantía</h2>
-                <button class="btn-close" onclick="cerrarModalGarantia()">&times;</button>
-            </div>
-            <form action="{{ route('garantias.store') }}" method="POST">
-                @csrf
-                <div class="form-group">
-                    <label>Seleccionar Orden Terminada</label>
-                    <select name="idOT" class="form-control" required>
-                        <option value="">-- Seleccione una OT Terminada --</option>
-                        @foreach($ordenesTerminadas as $ot)
-                            <option value="{{ $ot->idOT }}" {{ request('ot') == $ot->idOT ? 'selected' : '' }}>
-                                {{ $ot->folioOT }} - {{ $ot->nombreCliente }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Vigencia en Días</label>
-                    <input type="number" name="vigenciaDias" class="form-control" value="30" min="1" required>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn-filtrar" style="background: #ccc; color: #333;" onclick="cerrarModalGarantia()">Cancelar</button>
-                    <button type="submit" class="btn-crear" style="padding: 10px 20px;">Generar Garantía</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
-        function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
-
-        // Abre el modal automáticamente si llega el parámetro '?ot=' desde Órdenes de Trabajo
-        window.addEventListener('DOMContentLoaded', (event) => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('ot')) {
-                abrirModalGarantia();
-            }
-        });
-
-        function imprimirTicket(codigo, folio, cliente, inicio, vigencia, vencimiento) {
-            document.getElementById('t_codigo').innerText = codigo;
-            document.getElementById('t_folio').innerText = folio;
-            document.getElementById('t_cliente').innerText = cliente;
-            document.getElementById('t_inicio').innerText = inicio;
-            document.getElementById('t_vigencia').innerText = vigencia;
-            document.getElementById('t_vencimiento').innerText = vencimiento;
-
-            let ticketDiv = document.getElementById('ticketImpresion');
-            ticketDiv.style.display = 'block';
-            window.print();
-            ticketDiv.style.display = 'none';
-        }
-    </script>
 </body>
 </html>

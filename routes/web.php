@@ -42,8 +42,7 @@ Route::post('/ordenes_trabajo/store-directo', [OrdenTrabajoController::class, 's
 Route::get('/venta_directa', [VentaDirectaController::class, 'index']);
 Route::post('/venta_directa/procesar', [VentaDirectaController::class, 'procesarVenta'])->name('venta_directa.procesar');
 
-
-Route::get('/garantias', [GarantiaController::class, 'index']);
+Route::get('/garantias', [GarantiaController::class, 'index'])->name('garantias.index');
 Route::post('/garantias', [GarantiaController::class, 'store'])->name('garantias.store');
 
 Route::get('/historial_movimientos', [HistorialReporteController::class, 'index']);
