@@ -322,4 +322,128 @@
             <span class="material-symbols-outlined icono-admin">account_circle</span>
             <div class="info-admin">
                 <strong>Admin Taller</strong>
-                <div class="
+                <div class="estado">● En Línea</div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="top-header">
+            <div class="titulo-pagina">
+                <h1>Gestión de Órdenes de Trabajo</h1>
+                <p>Seguimiento de reparaciones activas, diagnóstico hidráulico y asignación de refacciones en taller.</p>
+            </div>
+        </div>
+
+        @if(session('success'))
+            <div class="alert">{{ session('success') }}</div>
+        @endif
+
+        <!-- Tarjetas de Estado de Órdenes -->
+        <div class="grid-stats">
+            <div class="card-stat">
+                <div class="numero">{{ $totalOrdenes }}</div>
+                <div class="label">
+                    <h4>Órdenes registradas</h4>
+                    <p>Listado completo</p>
+                </div>
+            </div>
+
+            <div class="card-stat">
+                <div class="numero" style="color: #e67e22;">{{ $enProceso }}</div>
+                <div class="label">
+                    <h4>En Proceso</h4>
+                    <p>Reparaciones activas</p>
+                </div>
+            </div>
+
+            <div class="card-stat">
+                <div class="numero" style="color: #27ae60;">{{ $terminado }}</div>
+                <div class="label">
+                    <h4>Terminado</h4>
+                    <p>Servicio concluido</p>
+                </div>
+            </div>
+
+            <div class="card-stat">
+                <div class="numero" style="color: #c0392b;">{{ $cancelado }}</div>
+                <div class="label">
+                    <h4>Cancelado</h4>
+                    <p>Sin cargos aplicados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador -->
+        <form action="/ordenes_trabajo" method="GET" class="bar-busqueda">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por Folio OT, Cliente o Teléfono...">
+            <button type="submit" class="btn-filtrar">
+                <span class="material-symbols-outlined">filter_list</span> Filtrar
+            </button>
+        </form>
+
+        <!-- Tabla Limpia de Órdenes de Trabajo -->
+        <div class="contenedor-tabla">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Folio OT</th>
+                        <th>Fecha</th>
+                        <th>Cliente / Tel.</th>
+                        <th>Falla / Diagnóstico</th>
+                        <th>Mano de Obra</th>
+                        <th>Estado</th>
+                        <th>Cambiar Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($ordenes as $ot)
+                        <tr>
+                            <td><strong>{{ $ot->folioOT }}</strong></td>
+                            <td>{{ $ot->fechaCreacion }}</td>
+                            <td>
+                                {{ $ot->nombreCliente }}<br>
+                                <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
+                            </td>
+                            <td>{{ $ot->diagnosticoFalla }}</td>
+                            <td>${{ number_format($ot->costoManoObra, 2) }}</td>
+                            <td>
+                                @if($ot->estadoOT == 'En Proceso')
+                                    <span class="badge-estado estado-proceso">En Proceso</span>
+                                @elseif($ot->estadoOT == 'Terminado')
+                                    <span class="badge-estado estado-terminado">Terminado</span>
+                                @else
+                                    <span class="badge-estado estado-cancelado">Cancelado</span>
+                                @endif
+                            </td>
+                            <td>
+                                <form action="/ordenes_trabajo/estado/{{ $ot->idOT }}" method="POST">
+                                    @csrf
+                                    <select name="estadoOT" style="padding: 4px; font-size: 12px; border-radius: 4px;" onchange="this.form.submit()">
+                                        <option value="En Proceso" {{ $ot->estadoOT == 'En Proceso' ? 'selected' : '' }}>En Proceso</option>
+                                        <option value="Terminado" {{ $ot->estadoOT == 'Terminado' ? 'selected' : '' }}>Terminado</option>
+                                        <option value="Cancelado" {{ $ot->estadoOT == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                    </select>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="mensaje-vacio">
+                                {{ request('search') ? 'No se encontraron órdenes de trabajo con los criterios de búsqueda.' : 'Utilice el buscador superior para consultar las órdenes de trabajo.' }}
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+
+            <div class="footer-tabla">
+                <span>Mostrando {{ count($ordenes) }} órdenes en total</span>
+                <span>BOMBAS GUERRA S.A. DE C.V.</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
