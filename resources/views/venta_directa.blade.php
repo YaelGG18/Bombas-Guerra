@@ -194,6 +194,52 @@
             color: #888;
         }
 
+        /* Botones de acción dentro de la tabla */
+        .btn-add {
+            background-color: #002347;
+            color: #FFCC00;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+
+        .btn-add:hover {
+            background-color: #003366;
+        }
+
+        .btn-qty {
+            background: #EAEFF2;
+            border: 1px solid #ccc;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-qty:hover {
+            background: #ddd;
+        }
+
+        .btn-del {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-del:hover {
+            background: #cc0000;
+        }
+
         /* Resumen de Venta */
         .resumen-venta {
             background-color: #002B54;
@@ -305,6 +351,12 @@
         .btn-primario:hover {
             background-color: #e6b800;
         }
+
+        .btn-primario:disabled {
+            background-color: #cccccc;
+            color: #666666;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -385,26 +437,51 @@
             <div class="seccion-titulo">Selección de Catálogo</div>
             <div class="search-container">
                 <span class="material-symbols-outlined">search</span>
-                <input type="text" placeholder="Buscar por ID, Nombre, Marca o N° Parte...">
+                <input type="text" id="buscarInput" placeholder="Buscar por ID, Nombre, Marca o Categoría...">
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ref / ID</th>
-                        <th>Refacción / Marca / N° Parte</th>
-                        <th>Precio</th>
-                        <th>Disp.</th>
-                        <th>Añadir al Carrito</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="5" class="mensaje-vacio">
-                            No hay refacciones registradas en el catálogo. Se poblará al conectar con la base de datos.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <table id="tablaCatalogo">
+    <thead>
+        <tr>
+            <th>Ref / ID</th>
+            <th>Refacción / Marca / Categoría</th>
+            <th>Precio</th>
+            <th>Disp.</th>
+            <th>Añadir al Carrito</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse($refacciones as $refaccion)
+        <!-- Agregamos style="display: none;" para que nazcan ocultas -->
+        <tr class="fila-producto" style="display: none;">
+            <td>#{{ $refaccion->id }}</td>
+            <td>
+                <strong>{{ $refaccion->nombre }}</strong><br>
+                <small style="color: #666;">{{ $refaccion->marca }} - {{ $refaccion->categoria }}</small>
+            </td>
+            <td>${{ number_format($refaccion->precio_venta, 2) }}</td>
+            <td><strong>{{ $refaccion->stock }}</strong></td>
+            <td>
+                <button class="btn-add" onclick="agregarAlCarrito({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio_venta }}, {{ $refaccion->stock }})">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">add_shopping_cart</span> Añadir
+                </button>
+            </td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="5" class="mensaje-vacio">
+                No hay refacciones registradas con stock disponible.
+            </td>
+        </tr>
+        @endforelse
+
+        <!-- Fila de aviso cuando no hay texto ingresado -->
+        <tr id="mensajeInicial">
+            <td colspan="5" class="mensaje-vacio">
+                Escribe en el buscador para consultar el catálogo de refacciones.
+            </td>
+        </tr>
+    </tbody>
+</table>
         </div>
 
         <!-- Carrito de Salida -->
@@ -421,7 +498,7 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="carritoBody">
                     <tr>
                         <td colspan="6" class="mensaje-vacio">
                             El carrito está vacío. Selecciona una refacción del catálogo para empezar.
@@ -445,24 +522,175 @@
 
             <div class="resumen-fila">
                 <p>Total de Refacciones</p>
-                <span class="badge-unidades">0 Unidades</span>
+                <span class="badge-unidades" id="totalUnidades">0 Unidades</span>
             </div>
 
             <div class="resumen-fila">
                 <p>Monto Total a Cobrar</p>
-                <div class="precio-total">$0.00 <span>MXN</span></div>
+                <div class="precio-total" id="totalMonto">$0.00 <span>MXN</span></div>
             </div>
 
             <div class="botones-accion">
-                <button class="btn btn-secundario">
+                <button class="btn btn-secundario" onclick="vaciarCarrito()">
                     <span class="material-symbols-outlined">delete</span> Vaciar carrito
                 </button>
-                <button class="btn btn-primario">
+                <button class="btn btn-primario" id="btnFinalizar" onclick="procesarVenta()" disabled>
                     <span class="material-symbols-outlined">check_circle</span> Finalizar compra
                 </button>
             </div>
         </div>
     </div>
+
+    <script>
+        let carrito = [];
+
+        // Buscador en tiempo real (Oculto si el input está vacío)
+document.getElementById('buscarInput').addEventListener('keyup', function() {
+    let filtro = this.value.trim().toLowerCase();
+    let filas = document.querySelectorAll('#tablaCatalogo tbody tr.fila-producto');
+    let mensajeInicial = document.getElementById('mensajeInicial');
+
+    if (filtro === '') {
+        // Si el buscador está vacío, ocultamos todas las refacciones
+        filas.forEach(fila => fila.style.display = 'none');
+        if (mensajeInicial) mensajeInicial.style.display = '';
+    } else {
+        // Si hay texto escrito, ocultamos el mensaje inicial y mostramos las refacciones coincidentes
+        if (mensajeInicial) mensajeInicial.style.display = 'none';
+        
+        filas.forEach(fila => {
+            let texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(filtro) ? '' : 'none';
+        });
+    }
+});
+
+        // Agregar producto
+        function agregarAlCarrito(id, nombre, precio, stockMax) {
+            let item = carrito.find(p => p.id === id);
+
+            if (item) {
+                if (item.cantidad + 1 > stockMax) {
+                    alert('No hay suficiente stock disponible para añadir más.');
+                    return;
+                }
+                item.cantidad++;
+            } else {
+                carrito.push({ id, nombre, precio, cantidad: 1, stockMax });
+            }
+
+            renderizarCarrito();
+        }
+
+        // Cambiar cantidad (+ / -)
+        function cambiarCantidad(id, cambio) {
+            let item = carrito.find(p => p.id === id);
+            if (!item) return;
+
+            if (item.cantidad + cambio > item.stockMax) {
+                alert('Alcanzaste el stock máximo disponible.');
+                return;
+            }
+
+            item.cantidad += cambio;
+
+            if (item.cantidad <= 0) {
+                eliminarDelCarrito(id);
+            } else {
+                renderizarCarrito();
+            }
+        }
+
+        // Eliminar fila individual
+        function eliminarDelCarrito(id) {
+            carrito = carrito.filter(p => p.id !== id);
+            renderizarCarrito();
+        }
+
+        // Vaciar todo el carrito
+        function vaciarCarrito() {
+            if (carrito.length === 0) return;
+            if (confirm('¿Vaciar todo el carrito?')) {
+                carrito = [];
+                renderizarCarrito();
+            }
+        }
+
+        // Dibujar carrito en pantalla
+        function renderizarCarrito() {
+            let tbody = document.getElementById('carritoBody');
+            tbody.innerHTML = '';
+            
+            let totalMonto = 0;
+            let totalUnidades = 0;
+
+            if (carrito.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="mensaje-vacio">
+                            El carrito está vacío. Selecciona una refacción del catálogo para empezar.
+                        </td>
+                    </tr>`;
+                document.getElementById('btnFinalizar').disabled = true;
+            } else {
+                carrito.forEach(p => {
+                    let subtotal = p.precio * p.cantidad;
+                    totalMonto += subtotal;
+                    totalUnidades += p.cantidad;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${p.id}</td>
+                            <td><strong>${p.nombre}</strong></td>
+                            <td>$${p.precio.toFixed(2)}</td>
+                            <td>
+                                <button class="btn-qty" onclick="cambiarCantidad(${p.id}, -1)">-</button>
+                                <span style="margin: 0 6px; font-weight: bold;">${p.cantidad}</span>
+                                <button class="btn-qty" onclick="cambiarCantidad(${p.id}, 1)">+</button>
+                            </td>
+                            <td><strong>$${subtotal.toFixed(2)}</strong></td>
+                            <td>
+                                <button class="btn-del" onclick="eliminarDelCarrito(${p.id})">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('btnFinalizar').disabled = false;
+            }
+
+            document.getElementById('totalUnidades').innerText = `${totalUnidades} Unidades`;
+            document.getElementById('totalMonto').innerHTML = `$${totalMonto.toFixed(2)} <span>MXN</span>`;
+        }
+
+        // Enviar venta a Laravel
+        function procesarVenta() {
+            if (carrito.length === 0) return;
+
+            if (!confirm('¿Confirmar e ir a cobrar la salida de refacciones?')) return;
+
+            fetch("{{ route('venta_directa.procesar') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({ productos: carrito })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error inesperado al procesar la venta.');
+            });
+        }
+    </script>
 
 </body>
 </html>
