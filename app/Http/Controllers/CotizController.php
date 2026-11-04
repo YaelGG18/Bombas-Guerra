@@ -4,37 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Models\Refaccion; // Importamos el modelo de tu inventario
+use App\Models\Refaccion;
 use Exception;
 
 class CotizController extends Controller
 {
-    
-    // Método para cargar la página
     public function index()
     {
-        // Traemos todas las refacciones usando tu tabla 'refacciones'
         $refacciones = Refaccion::all(); 
         return view('cotizaciones', compact('refacciones'));
     }
 
-    // Método para procesar el formulario
     public function generarCotizacion(Request $request)
     {
-        // 1. Validaciones
         $request->validate([
-            'cliente'   => 'required', // Puede ser el nombre o teléfono del cliente
+            'cliente'   => 'required',
             'falla'     => 'required',
             'mano_obra' => 'nullable|numeric'
         ]);
 
         $manoObra = $request->filled('mano_obra') ? floatval($request->input('mano_obra')) : 0.00;
         
-        // El JSON oculto generado por JS se decodifica a un array de PHP
         $refaccionesStr = $request->input('refacciones', '[]');
         $refacciones = is_string($refaccionesStr) ? json_decode($refaccionesStr, true) : $refaccionesStr;
 
-        // Cálculos matemáticos backend por seguridad
         $totalMateriales = 0.00;
         if (is_array($refacciones)) {
             foreach ($refacciones as $item) {
@@ -46,8 +39,7 @@ class CotizController extends Controller
         try {
             DB::beginTransaction();
 
-            // 2. BUSCAR O CREAR CLIENTE AUTOMÁTICAMENTE
-            // Como el input 'cliente' recibe texto, verificamos si ya existe en la tabla. Si no, lo insertamos para obtener su ID numérico real.
+            // 1. Buscar o registrar cliente automáticamente
             $nombreClienteInput = $request->input('cliente');
             $clienteExistente = DB::table('cliente')->where('nombreCliente', $nombreClienteInput)->first();
 
@@ -56,21 +48,21 @@ class CotizController extends Controller
             } else {
                 $idCliente = DB::table('cliente')->insertGetId([
                     'nombreCliente' => $nombreClienteInput,
-                    'telefono'      => 'N/A' // Teléfono temporal si el formulario solo manda el nombre
+                    'telefono'      => 'S/N' // Valor por defecto si no se ingresó en el formulario
                 ]);
             }
 
-            // 3. Insertar maestro en 'orden_trabajo' usando el ID numérico correcto ($idCliente)
+            // 2. Insertar Orden de Trabajo con estado 'En Proceso' por defecto
             $idCotizacion = DB::table('orden_trabajo')->insertGetId([
-                'idCliente'        => $idCliente, // <--- Aquí va el ID numérico correcto
+                'idCliente'        => $idCliente,
                 'folioOT'          => 'OT-' . rand(1000, 9999),
                 'diagnosticoFalla' => $request->input('falla'),
                 'costoManoObra'    => $manoObra,
-                'estadoOT'         => 'Cotizacion',
+                'estadoOT'         => 'En Proceso', // Por defecto en proceso
                 'fechaCreacion'    => now()
             ]);
 
-            // 4. Insertar detalles (Guardando precio histórico) en 'detalle_ot'
+            // 3. Insertar detalles y DESCONTAR DEL INVENTARIO (stock)
             if (is_array($refacciones) && count($refacciones) > 0) {
                 $detalles = [];
                 foreach ($refacciones as $item) {
@@ -80,13 +72,18 @@ class CotizController extends Controller
                         'cantidad'                => $item['cantidad'],
                         'precioUnitarioHistorico' => $item['precio'], 
                     ];
+
+                    // Descontar la pieza utilizada de la tabla 'refacciones'
+                    DB::table('refacciones')
+                        ->where('id', $item['id_refaccion'])
+                        ->decrement('stock', $item['cantidad']);
                 }
                 DB::table('detalle_ot')->insert($detalles);
             }
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Cotización #' . $idCotizacion . ' generada con éxito. Total: $' . number_format($totalServicio, 2));
+            return redirect()->back()->with('success', '¡Orden de trabajo generada con éxito y stock actualizado! Folio OT #' . $idCotizacion);
 
         } catch (Exception $e) {
             DB::rollBack();
