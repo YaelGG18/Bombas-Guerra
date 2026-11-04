@@ -68,6 +68,7 @@ class HistorialReporteController extends Controller
         }
         
         $ventas = $queryVentas->get();
+        dd($ventas);
 
         // Agregamos variables de respaldo para Ventas Directas 
         // (Previene errores si tu vista también pide estos datos en la pestaña de ventas)
