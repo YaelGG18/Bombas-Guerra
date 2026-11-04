@@ -5,6 +5,7 @@ use App\Http\Controllers\RefaccionController;
 use App\Http\Controllers\CotizController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\GarantiaController;
+use App\Http\Controllers\HistorialReporteController;
 
 // Ruta del Login (Pantalla Principal)
 Route::get('/', function () {
@@ -43,9 +44,7 @@ Route::get('/venta_directa', function () {
 Route::get('/garantias', [GarantiaController::class, 'index']);
 Route::post('/garantias', [GarantiaController::class, 'store'])->name('garantias.store');
 
-Route::get('/historial_movimientos', function () {
-    return view('historial_movimientos');
-});
+Route::get('/historial_movimientos', [HistorialReporteController::class, 'index']);
 
 Route::get('/cotizaciones', function () {
     return view('cotizaciones'); })->name('cotizaciones.index');
@@ -58,3 +57,6 @@ Route::get('/venta_directa', [RefaccionController::class, 'ventaDirecta'])->name
 Route::post('/venta_directa/procesar', [RefaccionController::class, 'procesarVenta'])->name('venta_directa.procesar');
 Route::get('/cotizaciones', [CotizController::class, 'index'])->name('cotizaciones.index');
 Route::post('/generar-cotizacion', [CotizController::class, 'generarCotizacion'])->name('cotizacion.generar');
+
+
+
