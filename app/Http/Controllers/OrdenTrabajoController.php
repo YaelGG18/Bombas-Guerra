@@ -57,7 +57,7 @@ class OrdenTrabajoController extends Controller
         return view('ordenes_trabajo', compact('ordenes', 'totalOrdenes', 'enProceso', 'terminado', 'cancelado', 'refacciones', 'search'));
     }
 
-    public function actualizarEstado(Request $request, $id)
+   public function actualizarEstado(Request $request, $id)
     {
         $nuevoEstado = $request->estadoOT;
 
@@ -65,9 +65,9 @@ class OrdenTrabajoController extends Controller
             ->where('idOT', $id)
             ->update(['estadoOT' => $nuevoEstado]);
 
-        // Si la marca como Terminada, redirige automáticamente al módulo de garantías para asignarla
+        // Si la marca como Terminada, redirige enviando el idOT para seleccionarlo en automático
         if ($nuevoEstado === 'Terminado') {
-            return redirect('/garantias')->with('success', 'Orden marcada como Terminada. Ahora asígnele su póliza de garantía.');
+            return redirect('/garantias?ot=' . $id)->with('success', 'Orden marcada como Terminada. Asígnele su póliza de garantía.');
         }
 
         return back()->with('success', 'Estado de la orden actualizado correctamente.');

@@ -193,7 +193,7 @@
                     @empty
                         <tr>
                             <td colspan="8" class="mensaje-vacio">
-                                {{ request('search') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
+                                {{ request('search') || request('ot') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
                             </td>
                         </tr>
                     @endforelse

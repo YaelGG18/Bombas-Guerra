@@ -12,11 +12,12 @@ class GarantiaController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $otParam = $request->input('ot');
 
-        if (!$search) {
+        if (!$search && !$otParam) {
             $garantias = collect();
         } else {
-            $garantias = DB::table('garantia')
+            $query = DB::table('garantia')
                 ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
                 ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
                 ->select(
@@ -24,18 +25,20 @@ class GarantiaController extends Controller
                     'orden_trabajo.folioOT',
                     'cliente.nombreCliente',
                     'cliente.telefono'
-                )
-                ->where(function($q) use ($search) {
+                );
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
                     $q->where('garantia.codigoVerificacion', 'LIKE', "%{$search}%")
                       ->orWhere('orden_trabajo.folioOT', 'LIKE', "%{$search}%")
                       ->orWhere('cliente.nombreCliente', 'LIKE', "%{$search}%")
                       ->orWhere('cliente.telefono', 'LIKE', "%{$search}%");
-                })
-                ->orderBy('garantia.fechalinicio', 'desc')
-                ->get();
+                });
+            }
+
+            $garantias = $query->orderBy('garantia.fechalinicio', 'desc')->get();
         }
 
-        // Actualizar estatus dinámicamente o contar según fecha
         $hoy = Carbon::now();
         $todasGarantias = DB::table('garantia')->get();
         
@@ -48,7 +51,6 @@ class GarantiaController extends Controller
 
             if ($hoy->greaterThan($fechaVencimiento)) {
                 $vencidasCount++;
-                // Actualizar a Vencida en BD si sigue figurando como Vigente
                 if ($g->estadoGarantia === 'Vigente') {
                     DB::table('garantia')->where('idGarantia', $g->idGarantia)->update(['estadoGarantia' => 'Vencida']);
                 }
@@ -59,7 +61,6 @@ class GarantiaController extends Controller
 
         $totalGarantias = DB::table('garantia')->count();
 
-        // Órdenes terminadas disponibles para asignarles garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
             ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
             ->select('orden_trabajo.idOT', 'orden_trabajo.folioOT', 'cliente.nombreCliente')
