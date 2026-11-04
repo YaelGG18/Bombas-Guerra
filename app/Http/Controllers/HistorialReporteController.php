@@ -14,13 +14,10 @@ class HistorialReporteController extends Controller
         $search      = $request->input('search');
         $tabActiva   = $request->input('tab', 'ot');
 
-        // Si no hay filtros de fecha ni búsqueda, las listas arrancan vacías
-        if (!$fechaInicio && !$fechaFin && !$search) {
-            $ordenes = collect();
-            $ventas  = collect();
-            return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
-        }
-
+        // Si el usuario acaba de entrar y los inputs de fecha vienen por defecto pero no hay búsqueda ni intención manual, 
+        // puedes decidir si quieres que liste todo o arranque vacío. 
+        // Para asegurar que veas tu venta de prueba de inmediato, quitamos la restricción estricta de fecha por defecto:
+        
         // --- 1. CONSULTA DE ÓRDENES DE TRABAJO ---
         $queryOT = DB::table('orden_trabajo')
             ->join('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
@@ -44,7 +41,8 @@ class HistorialReporteController extends Controller
             });
         }
 
-        $ordenes = $queryOT->orderBy('orden_trabajo.fechaCreacion', 'desc')->get();
+        // Si no hay ningún filtro aplicado, devolvemos colección vacía para las OT
+        $ordenes = (!$fechaInicio && !$fechaFin && !$search) ? collect() : $queryOT->orderBy('orden_trabajo.fechaCreacion', 'desc')->get();
 
         foreach ($ordenes as $ot) {
             $detalles = DB::table('detalle_ot')->where('idOT', $ot->idOT)->get();
@@ -70,9 +68,13 @@ class HistorialReporteController extends Controller
                       ->orWhere('clienteMostrador', 'LIKE', "%{$search}%");
                 });
             }
+
+            // Ojo: Si quieres que muestre las ventas sin requerir filtro forzoso de fecha, 
+            // quitamos la condicion de vacio o dejamos que traiga todo si no hay búsqueda estricta:
             $ventas = $queryVentas->orderBy('idVenta', 'desc')->get();
+
         } catch (\Exception $e) {
-            // Excepción silenciosa si ocurriera
+            // En caso de error
         }
 
         return view('historial_movimientos', compact('ordenes', 'ventas', 'fechaInicio', 'fechaFin', 'search', 'tabActiva'));
