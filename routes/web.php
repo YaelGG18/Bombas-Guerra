@@ -37,10 +37,9 @@ Route::post('/ordenes_trabajo/estado/{id}', [OrdenTrabajoController::class, 'act
 Route::put('/ordenes_trabajo/{id}', [OrdenTrabajoController::class, 'update']);
 Route::post('/ordenes_trabajo/store-directo', [OrdenTrabajoController::class, 'storeDirecto'])->name('ordenes_trabajo.store');
 
+Route::get('/venta_directa', [App\Http\Controllers\VentaDirectaController::class, 'index'])->name('venta_directa');
+Route::post('/venta_directa/procesar', [App\Http\Controllers\VentaDirectaController::class, 'procesarVenta'])->name('venta_directa.procesar');
 
-
-Route::get('/venta_directa', [VentaDirectaController::class, 'index']);
-Route::post('/venta_directa/procesar', [VentaDirectaController::class, 'procesarVenta'])->name('venta_directa.procesar');
 
 Route::get('/garantias', [App\Http\Controllers\GarantiaController::class, 'index'])->name('garantias.index');
 Route::post('/garantias', [GarantiaController::class, 'store'])->name('garantias.store');
