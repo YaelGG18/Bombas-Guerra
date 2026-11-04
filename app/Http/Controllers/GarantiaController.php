@@ -4,53 +4,80 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Str;
 
 class GarantiaController extends Controller
 {
-    // Muestra la vista inicial con el buscador vacío
-    public function index()
+    public function index(Request $request)
     {
-        return view('garantias'); 
+        $search = $request->input('search');
+
+        // 1. Consultar Garantías registradas con joins
+        $query = DB::table('garantia')
+            ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.id')
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
+            ->select(
+                'garantia.*', 
+                'orden_trabajo.id as idOT', 
+                'orden_trabajo.fecha', 
+                'cliente.nombre as nombre_cliente',
+                'cliente.telefono'
+            );
+
+        if ($search) {
+            $query->where('garantia.codigo_unico', 'like', "%$search%")
+                  ->orWhere('orden_trabajo.id', 'like', "%$search%")
+                  ->orWhere('cliente.nombre', 'like', "%$search%");
+        }
+
+        $garantias = $query->get();
+
+        // 2. Calcular estadísticas (Vigentes vs Vencidas)
+        $totalGarantias = count($garantias);
+        $vigentesCount = 0;
+        $vencidasCount = 0;
+
+        foreach ($garantias as $gar) {
+            $fechaVencimiento = Carbon::parse($gar->fecha)->addDays($gar->vigencia_dias);
+            if (Carbon::now()->startOfDay()->lte($fechaVencimiento)) {
+                $vigentesCount++;
+            } else {
+                $vencidasCount++;
+            }
+        }
+
+        // 3. Órdenes Terminadas disponibles para emitir nueva garantía
+        $ordenesTerminadas = DB::table('orden_trabajo')
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
+            ->where('orden_trabajo.estado', 'Terminada') 
+            ->whereNotIn('orden_trabajo.id', function($q) {
+                $q->select('idOT')->from('garantia'); // Excluir OT que ya tienen garantía
+            })
+            ->select('orden_trabajo.id as idOT', 'cliente.nombre as nombre_cliente')
+            ->get();
+
+        return view('garantias', compact('garantias', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'ordenesTerminadas'));
     }
 
-    // Procesa la búsqueda del código de garantía
-    public function buscar(Request $request)
+    public function store(Request $request)
     {
-        // 1. Validar que el usuario escribió algo
         $request->validate([
-            'codigo_garantia' => 'required|string|max:50'
-        ], [
-            'codigo_garantia.required' => 'Debe ingresar un código para buscar.'
+            'idOT' => 'required|integer',
+            'vigencia_dias' => 'required|integer|min:1'
         ]);
 
-        $codigo = $request->input('codigo_garantia');
-
         try {
-            // 2. Consulta a la base de datos usando las tablas reales de tu imagen
-            $resultado = DB::table('garantia') // Tu tabla en BD se llama "garantia" (singular)
-                ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.id') // Tabla "orden_trabajo"
-                ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id') // Tabla "cliente"
-                ->where('garantia.codigo_unico', $codigo) // *Verifica que tu columna se llame 'codigo_unico'
-                ->select(
-                    'garantia.*', 
-                    'orden_trabajo.falla',
-                    'orden_trabajo.fecha as fecha_reparacion',
-                    'cliente.nombre as nombre_cliente' // Traemos el nombre del cliente
-                )
-                ->first();
+            DB::table('garantia')->insert([
+                'idOT' => $request->input('idOT'),
+                'codigo_unico' => 'BG-' . strtoupper(Str::random(5)), // Genera código tipo BG-X8A2B
+                'vigencia_dias' => $request->input('vigencia_dias')
+            ]);
 
-            // 3. Evaluar si existe
-            if ($resultado) {
-                // Si la encuentra, recarga la vista pasándole los datos de la garantía
-                return view('garantias', compact('resultado'));
-            } else {
-                // Si no existe, retorna a la pantalla anterior con un mensaje de error
-                return redirect()->back()->with('error', 'Código de garantía "' . $codigo . '" no encontrado o no es válido.');
-            }
-
+            return redirect()->route('garantias.index')->with('success', 'Garantía generada exitosamente.');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Error del sistema: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al emitir póliza: ' . $e->getMessage());
         }
     }
 }
