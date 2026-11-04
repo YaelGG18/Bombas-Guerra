@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RefaccionController;
+use App\Http\Controllers\VentaDirectaController;
 use App\Http\Controllers\CotizController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\GarantiaController;
@@ -35,10 +36,11 @@ Route::get('/ordenes_trabajo', [OrdenTrabajoController::class, 'index']);
 Route::post('/ordenes_trabajo/estado/{id}', [OrdenTrabajoController::class, 'actualizarEstado']);
 Route::put('/ordenes_trabajo/{id}', [OrdenTrabajoController::class, 'update']);
 Route::post('/ordenes_trabajo/store-directo', [OrdenTrabajoController::class, 'storeDirecto'])->name('ordenes_trabajo.store');
-Route::get('/venta_directa', function () {
-    return view('venta_directa');
-});
 
+
+
+Route::get('/venta_directa', [VentaDirectaController::class, 'index']);
+Route::post('/venta_directa/procesar', [VentaDirectaController::class, 'procesarVenta'])->name('venta_directa.procesar');
 
 
 Route::get('/garantias', [GarantiaController::class, 'index']);
