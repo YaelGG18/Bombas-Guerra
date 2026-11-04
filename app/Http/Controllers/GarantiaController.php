@@ -15,22 +15,21 @@ class GarantiaController extends Controller
     {
         $search = $request->input('search');
 
-        // Consultar Garantías registradas
+        // Consultar Garantías registradas con los nombres exactos de columnas de la BD
         $query = DB::table('garantia')
             ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
-            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
             ->select(
                 'garantia.*', 
-                'orden_trabajo.idOT as idOT', 
-                'orden_trabajo.fechaCreacion as fecha', // Actualizado según la BD
-                'cliente.nombre as nombre_cliente',
+                'orden_trabajo.folioOT', 
+                'cliente.nombreCliente',
                 'cliente.telefono'
             );
 
         if ($search) {
-            $query->where('garantia.codigo_unico', 'like', "%$search%")
-                  ->orWhere('orden_trabajo.idOT', 'like', "%$search%")
-                  ->orWhere('cliente.nombre', 'like', "%$search%");
+            $query->where('garantia.codigoVerificacion', 'like', "%$search%")
+                  ->orWhere('orden_trabajo.folioOT', 'like', "%$search%")
+                  ->orWhere('cliente.nombreCliente', 'like', "%$search%");
         }
 
         $garantias = $query->get();
@@ -41,7 +40,8 @@ class GarantiaController extends Controller
         $vencidasCount = 0;
 
         foreach ($garantias as $gar) {
-            $fechaVencimiento = Carbon::parse($gar->fecha)->addDays($gar->vigencia_dias);
+            // Usamos fechalinicio y vigenciaDias reales de la tabla garantia
+            $fechaVencimiento = Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias);
             if (Carbon::now()->startOfDay()->lte($fechaVencimiento)) {
                 $vigentesCount++;
             } else {
@@ -51,12 +51,12 @@ class GarantiaController extends Controller
 
         // Órdenes Terminadas disponibles para emitir nueva garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
-            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
-            ->where('orden_trabajo.estadoOT', 'Terminada') // Actualizado según la BD
+            ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+            ->where('orden_trabajo.estadoOT', 'Terminada')
             ->whereNotIn('orden_trabajo.idOT', function($q) {
                 $q->select('idOT')->from('garantia'); 
             })
-            ->select('orden_trabajo.idOT as idOT', 'cliente.nombre as nombre_cliente')
+            ->select('orden_trabajo.idOT', 'orden_trabajo.folioOT', 'cliente.nombreCliente')
             ->get();
 
         return view('garantias', compact('garantias', 'totalGarantias', 'vigentesCount', 'vencidasCount', 'ordenesTerminadas'));
@@ -67,14 +67,16 @@ class GarantiaController extends Controller
     {
         $request->validate([
             'idOT' => 'required|integer',
-            'vigencia_dias' => 'required|integer|min:1'
+            'vigenciaDias' => 'required|integer|min:1'
         ]);
 
         try {
             DB::table('garantia')->insert([
                 'idOT' => $request->input('idOT'),
-                'codigo_unico' => 'BG-' . strtoupper(Str::random(5)), 
-                'vigencia_dias' => $request->input('vigencia_dias')
+                'codigoVerificacion' => 'BG-' . strtoupper(Str::random(5)), 
+                'fechalinicio' => Carbon::now()->toDateString(), // Asigna la fecha actual
+                'vigenciaDias' => $request->input('vigenciaDias'),
+                'estadoGarantia' => 'Vigente'
             ]);
 
             return redirect()->route('garantias.index')->with('success', 'Garantía generada exitosamente.');
@@ -83,7 +85,7 @@ class GarantiaController extends Controller
         }
     }
 
-    // 3. Buscar código único de validación (Desde la barra de búsqueda de la vista principal)
+    // 3. Buscar código único de validación
     public function buscar(Request $request)
     {
         $request->validate([
@@ -97,13 +99,13 @@ class GarantiaController extends Controller
         try {
             $resultado = DB::table('garantia')
                 ->join('orden_trabajo', 'garantia.idOT', '=', 'orden_trabajo.idOT')
-                ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.id')
-                ->where('garantia.codigo_unico', $codigo)
+                ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
+                ->where('garantia.codigoVerificacion', $codigo)
                 ->select(
                     'garantia.*', 
-                    'orden_trabajo.diagnosticoFalla', // Actualizado según la BD
-                    'orden_trabajo.fechaCreacion as fecha_reparacion', // Actualizado según la BD
-                    'cliente.nombre as nombre_cliente'
+                    'orden_trabajo.diagnosticoFalla', 
+                    'orden_trabajo.folioOT', 
+                    'cliente.nombreCliente'
                 )
                 ->first();
 
