@@ -163,7 +163,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($garantias as$gar)
+                    @forelse($garantias as $gar)
                         @php
                             $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
                         @endphp
@@ -185,7 +185,7 @@
                                 @endif
                             </td>
                             <td>
-                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{$gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{$gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{$fechaVencimiento }}')">
+                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
                                 </button>
                             </td>
@@ -215,4 +215,80 @@
 
     <!-- TICKET OCULTO PARA IMPRESIÓN TÉRMICA -->
     <div id="ticketImpresion" style="display: none;">
-        <div style="text-align: center; font-weight:
+        <div style="text-align: center; font-weight: bold;">BOMBAS GUERRA S.A. DE C.V.</div>
+        <div style="text-align: center;">CONTROL DE TALLER E INVENTARIOS</div>
+        <div style="text-align: center;">--------------------------------</div>
+        <div style="text-align: center; font-size: 14px; font-weight: bold;">PÓLIZA DE GARANTÍA</div>
+        <div>--------------------------------</div>
+        <div><strong>Código:</strong> <span id="t_codigo"></span></div>
+        <div><strong>Folio OT:</strong> <span id="t_folio"></span></div>
+        <div><strong>Cliente:</strong> <span id="t_cliente"></span></div>
+        <div><strong>F. Emisión:</strong> <span id="t_inicio"></span></div>
+        <div><strong>Vigencia:</strong> <span id="t_vigencia"></span> días</div>
+        <div><strong>Vence el:</strong> <span id="t_vencimiento"></span></div>
+        <div>--------------------------------</div>
+        <div style="text-align: center; font-size: 10px;">¡Conserve este ticket para hacer válida su garantía en taller!</div>
+    </div>
+
+    <!-- MODAL EMITIR GARANTÍA -->
+    <div class="modal-overlay" id="modalGarantia">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Emitir Póliza de Garantía</h2>
+                <button class="btn-close" onclick="cerrarModalGarantia()">&times;</button>
+            </div>
+            <form action="{{ route('garantias.store') }}" method="POST">
+                @csrf
+                <div class="form-group">
+                    <label>Seleccionar Orden Terminada</label>
+                    <select name="idOT" class="form-control" required>
+                        <option value="">-- Seleccione una OT Terminada --</option>
+                        @foreach($ordenesTerminadas as $ot)
+                            <option value="{{ $ot->idOT }}" {{ request('ot') == $ot->idOT ? 'selected' : '' }}>
+                                {{ $ot->folioOT }} - {{ $ot->nombreCliente }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Vigencia en Días</label>
+                    <input type="number" name="vigenciaDias" class="form-control" value="30" min="1" required>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn-filtrar" style="background: #ccc; color: #333;" onclick="cerrarModalGarantia()">Cancelar</button>
+                    <button type="submit" class="btn-crear" style="padding: 10px 20px;">Generar Garantía</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirModalGarantia() { document.getElementById('modalGarantia').style.display = 'flex'; }
+        function cerrarModalGarantia() { document.getElementById('modalGarantia').style.display = 'none'; }
+
+        // Abre el modal automáticamente si llega el parámetro '?ot=' desde Órdenes de Trabajo
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('ot')) {
+                abrirModalGarantia();
+            }
+        });
+
+        function imprimirTicket(codigo, folio, cliente, inicio, vigencia, vencimiento) {
+            document.getElementById('t_codigo').innerText = codigo;
+            document.getElementById('t_folio').innerText = folio;
+            document.getElementById('t_cliente').innerText = cliente;
+            document.getElementById('t_inicio').innerText = inicio;
+            document.getElementById('t_vigencia').innerText = vigencia;
+            document.getElementById('t_vencimiento').innerText = vencimiento;
+
+            let ticketDiv = document.getElementById('ticketImpresion');
+            ticketDiv.style.display = 'block';
+            window.print();
+            ticketDiv.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
