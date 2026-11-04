@@ -65,7 +65,7 @@
 
         /* Modales */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: white; border-radius: 10px; width: 90%; max-width: 800px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-card { background: white; border-radius: 10px; width: 90%; max-width: 850px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcdcdc; padding-bottom: 15px; margin-bottom: 20px; }
         .modal-header h2 { color: #002B54; font-size: 20px; }
         .btn-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
@@ -158,6 +158,7 @@
                         <th>Falla / Diagnóstico</th>
                         <th>Mano de Obra</th>
                         <th>Estado</th>
+                        <th>Cambiar Estado</th>
                         <th>Acción</th>
                     </tr>
                 </thead>
@@ -182,12 +183,23 @@
                                 @endif
                             </td>
                             <td>
+                                <!-- Selector de estado directo en la tabla -->
+                                <form action="/ordenes_trabajo/estado/{{ $ot->idOT }}" method="POST">
+                                    @csrf
+                                    <select name="estadoOT" style="padding: 4px; font-size: 12px; border-radius: 4px;" onchange="this.form.submit()">
+                                        <option value="En Proceso" {{ $ot->estadoOT == 'En Proceso' ? 'selected' : '' }}>En Proceso</option>
+                                        <option value="Terminado" {{ $ot->estadoOT == 'Terminado' ? 'selected' : '' }}>Terminado</option>
+                                        <option value="Cancelado" {{ $ot->estadoOT == 'Cancelado' ? 'selected' : '' }}>Cancelado</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
                                 <button class="btn-modificar" onclick='abrirModalEditar(@json($ot))'>Modificar</button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="mensaje-vacio">
+                            <td colspan="8" class="mensaje-vacio">
                                 {{ request('search') ? 'No se encontraron órdenes de trabajo.' : 'Utilice el buscador superior para consultar las órdenes de trabajo.' }}
                             </td>
                         </tr>
@@ -201,7 +213,7 @@
             </div>
         </div>
 
-        <!-- Botón Inferior para Crear OT Directamente -->
+        <!-- Botón Inferior -->
         <div style="margin-top: 20px;">
             <button class="btn-crear-ot" onclick="abrirModalCrear()">
                 <span class="material-symbols-outlined">add_circle</span> Crear Nueva Orden de Trabajo
@@ -209,7 +221,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDICIÓN (Modificar diagnóstico, mano de obra y estado; nombre, teléfono y folio bloqueados) -->
+    <!-- MODAL DE EDICIÓN (Permite cambiar diagnóstico, mano de obra, estado y refacciones) -->
     <div class="modal-overlay" id="modalEditar">
         <div class="modal-card">
             <div class="modal-header">
@@ -219,6 +231,7 @@
             <form id="formUpdate" method="POST">
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="refacciones" id="inputEditRefaccionesJson">
 
                 <div class="form-row-2">
                     <div class="form-group">
@@ -233,13 +246,62 @@
 
                 <div class="form-group">
                     <label>Diagnóstico / Falla</label>
-                    <textarea class="form-control" id="edit_diagnostico" name="diagnosticoFalla" rows="3" required></textarea>
+                    <textarea class="form-control" id="edit_diagnostico" name="diagnosticoFalla" rows="2" required></textarea>
+                </div>
+
+                <!-- Buscador de refacciones para edición -->
+                <div class="form-group">
+                    <label>Añadir Refacciones del Inventario</label>
+                    <input type="text" id="buscadorRefEdit" class="form-control" placeholder="Escribe para buscar refacción..." onkeyup="filtrarCatalogoEdit()">
+                </div>
+
+                <div style="max-height: 140px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 12px; border-radius: 6px;">
+                    <table style="font-size: 12px;">
+                        <thead>
+                            <tr style="background: #f1f1f1;">
+                                <th>Refacción</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($refacciones as $ref)
+                            <tr class="fila-catalogo-edit" style="display: none;">
+                                <td>{{ $ref->nombre }}</td>
+                                <td>${{ number_format($ref->precio_venta, 2) }}</td>
+                                <td><strong>{{ $ref->stock }}</strong></td>
+                                <td>
+                                    <button type="button" class="btn-modificar" onclick="agregarItemEdit({{ $ref->id }}, '{{ $ref->nombre }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <label style="font-size: 13px; font-weight: bold; color: #002B54; margin-bottom: 6px; display:block;">Refacciones en la Orden</label>
+                <div style="max-height: 130px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 12px; border-radius: 6px;">
+                    <table style="font-size: 12px;">
+                        <thead>
+                            <tr style="background: #f1f1f1;">
+                                <th>Refacción</th>
+                                <th>Precio U.</th>
+                                <th>Cant.</th>
+                                <th>Subtotal</th>
+                                <th>Quitar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="carritoEditBody">
+                            <tr><td colspan="5" style="text-align: center; color: #888;">Sin refacciones.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="form-row-2">
                     <div class="form-group">
                         <label>Costo Mano de Obra ($)</label>
-                        <input type="number" step="0.01" class="form-control" id="edit_mano_obra" name="costoManoObra" required>
+                        <input type="number" step="0.01" class="form-control" id="edit_mano_obra" name="costoManoObra" oninput="calcularTotalEdit()" required>
                     </div>
                     <div class="form-group">
                         <label>Estado de la OT</label>
@@ -251,23 +313,26 @@
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn-filtrar" style="background: #ccc; color: #333;" onclick="cerrarModalEditar()">Cancelar</button>
-                    <button type="submit" class="btn-filtrar" style="background: #FFCC00; color: #002347;">Guardar Cambios</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #002B54;" id="totalEditText">$0.00</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-filtrar" style="background: #ccc; color: #333;" onclick="cerrarModalEditar()">Cancelar</button>
+                        <button type="submit" class="btn-crear-ot" style="padding: 10px 20px;">Guardar Cambios</button>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
 
-    <!-- MODAL DE CREACIÓN DIRECTA DE OT (Estilo Cotización) -->
+    <!-- MODAL DE CREACIÓN DIRECTA DE OT -->
     <div class="modal-overlay" id="modalCrearOT">
-        <div class="modal-card" style="max-width: 900px;">
+        <div class="modal-card">
             <div class="modal-header">
                 <h2>Crear Nueva Orden de Trabajo Directa</h2>
                 <button class="btn-close" onclick="cerrarModalCrear()">&times;</button>
             </div>
-            <form action="{{ route('ordenes_trabajo.store') }}" method="POST" id="formCrearOT">
+            <form action="{{ route('ordenes_trabajo.store') }}" method="POST">
                 @csrf
                 <input type="hidden" name="refacciones" id="inputRefaccionesJson">
 
@@ -287,14 +352,13 @@
                     <textarea class="form-control" name="diagnosticoFalla" rows="2" placeholder="Describa la falla..." required></textarea>
                 </div>
 
-                <!-- Buscador de Refacciones -->
                 <div class="form-group">
-                    <label>Seleccionar Refacciones del Inventario</label>
-                    <input type="text" id="buscadorRef" class="form-control" placeholder="Buscar refacción por nombre o marca..." onkeyup="filtrarCatalogoModal()">
+                    <label>Añadir Refacciones del Inventario</label>
+                    <input type="text" id="buscadorRef" class="form-control" placeholder="Escribe para buscar refacción..." onkeyup="filtrarCatalogoModal()">
                 </div>
 
-                <div style="max-height: 180px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 6px;">
-                    <table style="font-size: 12px;" id="tablaCatalogoModal">
+                <div style="max-height: 140px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 12px; border-radius: 6px;">
+                    <table style="font-size: 12px;">
                         <thead>
                             <tr style="background: #f1f1f1;">
                                 <th>Refacción</th>
@@ -305,12 +369,12 @@
                         </thead>
                         <tbody>
                             @foreach($refacciones as $ref)
-                            <tr class="fila-catalogo">
+                            <tr class="fila-catalogo-create" style="display: none;">
                                 <td>{{ $ref->nombre }}</td>
-                                ${{ number_format($ref->precioVentaActual, 2) }}
-                                <td><strong>{{ $ref->cantidadStock }}</strong></td>
+                                <td>${{ number_format($ref->precio_venta, 2) }}</td>
+                                <td><strong>{{ $ref->stock }}</strong></td>
                                 <td>
-                                    <button type="button" class="btn-modificar" onclick="agregarItemCarrito({{ $ref->idRefaccion }}, '{{ $ref->nombre }}', {{ $ref->precioVentaActual }}, {{ $ref->cantidadStock }})">Añadir</button>
+                                    <button type="button" class="btn-modificar" onclick="agregarItemCreate({{ $ref->id }}, '{{ $ref->nombre }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
                                 </td>
                             </tr>
                             @endforeach
@@ -318,9 +382,8 @@
                     </table>
                 </div>
 
-                <!-- Carrito Seleccionado -->
                 <label style="font-size: 13px; font-weight: bold; color: #002B54; margin-bottom: 6px; display:block;">Refacciones en la Orden</label>
-                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 15px; border-radius: 6px;">
+                <div style="max-height: 130px; overflow-y: auto; border: 1px solid #ddd; margin-bottom: 12px; border-radius: 6px;">
                     <table style="font-size: 12px;">
                         <thead>
                             <tr style="background: #f1f1f1;">
@@ -331,8 +394,8 @@
                                 <th>Quitar</th>
                             </tr>
                         </thead>
-                        <tbody id="carritoBody">
-                            <tr><td colspan="5" style="text-align: center; color: #888;">No hay refacciones añadidas.</td></tr>
+                        <tbody id="carritoCreateBody">
+                            <tr><td colspan="5" style="text-align: center; color: #888;">Sin refacciones añadidas.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -340,11 +403,11 @@
                 <div class="form-row-2">
                     <div class="form-group">
                         <label>Costo Mano de Obra ($)</label>
-                        <input type="number" step="0.01" class="form-control" name="costoManoObra" id="inputManoObra" value="0.00" oninput="calcularTotalGeneral()" required>
+                        <input type="number" step="0.01" class="form-control" name="costoManoObra" id="inputManoObraCreate" value="0.00" oninput="calcularTotalCreate()" required>
                     </div>
                     <div class="form-group" style="text-align: right;">
                         <label>Total Estimado</label>
-                        <div style="font-size: 24px; font-weight: bold; color: #002B54;" id="totalGeneralText">$0.00</div>
+                        <div style="font-size: 24px; font-weight: bold; color: #002B54;" id="totalCreateText">$0.00</div>
                     </div>
                 </div>
 
@@ -356,9 +419,81 @@
         </div>
     </div>
 
-    <!-- Script de Modales y Carrito -->
+    <!-- Script General -->
     <script>
-        // Modal Edición
+        // Modal Crear OT
+        function abrirModalCrear() { document.getElementById('modalCrearOT').style.display = 'flex'; }
+        function cerrarModalCrear() { document.getElementById('modalCrearOT').style.display = 'none'; }
+
+        let carritoCreate = [];
+        function filtrarCatalogoModal() {
+            let filtro = document.getElementById('buscadorRef').value.trim().toLowerCase();
+            let filas = document.querySelectorAll('.fila-catalogo-create');
+            filas.forEach(fila => {
+                if (filtro === '') {
+                    fila.style.display = 'none';
+                } else {
+                    let texto = fila.textContent.toLowerCase();
+                    fila.style.display = texto.includes(filtro) ? '' : 'none';
+                }
+            });
+        }
+        function agregarItemCreate(idRef, nombre, precio, stockMax) {
+            let item = carritoCreate.find(p => p.id_refaccion === idRef);
+            if (item) {
+                if (item.cantidad + 1 > stockMax) { alert('Stock insuficiente.'); return; }
+                item.cantidad++;
+            } else {
+                carritoCreate.push({ id_refaccion: idRef, nombre, precio, cantidad: 1, stockMax });
+            }
+            renderCarritoCreate();
+        }
+        function renderCarritoCreate() {
+            let tbody = document.getElementById('carritoCreateBody');
+            tbody.innerHTML = '';
+            if (carritoCreate.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Sin refacciones añadidas.</td></tr>`;
+                document.getElementById('inputRefaccionesJson').value = '[]';
+                calcularTotalCreate();
+                return;
+            }
+            carritoCreate.forEach(p => {
+                let subtotal = p.precio * p.cantidad;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.nombre}</strong></td>
+                        <td>$${p.precio.toFixed(2)}</td>
+                        <td>
+                            <button type="button" onclick="cambiarCantCreate(${p.id_refaccion}, -1)">-</button>
+                            <span style="margin:0 5px; font-weight:bold;">${p.cantidad}</span>
+                            <button type="button" onclick="cambiarCantCreate(${p.id_refaccion}, 1)">+</button>
+                        </td>
+                        <td>$${subtotal.toFixed(2)}</td>
+                        <td><button type="button" style="background:#ff4d4d; color:white; border:none; padding:3px 6px; border-radius:4px;" onclick="carritoCreate = carritoCreate.filter(x => x.id_refaccion !== ${p.id_refaccion}); renderCarritoCreate();">X</button></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('inputRefaccionesJson').value = JSON.stringify(carritoCreate);
+            calcularTotalCreate();
+        }
+        function cambiarCantCreate(idRef, cambio) {
+            let item = carritoCreate.find(p => p.id_refaccion === idRef);
+            if (!item) return;
+            item.cantidad += cambio;
+            if (item.cantidad <= 0) {
+                carritoCreate = carritoCreate.filter(p => p.id_refaccion !== idRef);
+            }
+            renderCarritoCreate();
+        }
+        function calcularTotalCreate() {
+            let subtotalMat = carritoCreate.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            let manoObra = parseFloat(document.getElementById('inputManoObraCreate').value) || 0;
+            let total = subtotalMat + manoObra;
+            document.getElementById('totalCreateText').innerText = '$' + total.toFixed(2);
+        }
+
+        // Modal Editar OT (con gestión de carrito)
+        let carritoEdit = [];
         function abrirModalEditar(ot) {
             document.getElementById('edit_folio').value = ot.folioOT;
             document.getElementById('edit_cliente').value = ot.nombreCliente;
@@ -366,95 +501,85 @@
             document.getElementById('edit_mano_obra').value = ot.costoManoObra;
             document.getElementById('edit_estado').value = ot.estadoOT;
             document.getElementById('formUpdate').action = '/ordenes_trabajo/' + ot.idOT;
+            
+            // Cargar refacciones existentes de la OT al carrito de edición
+            carritoEdit = ot.refacciones.map(r => ({
+                id_refaccion: r.idRefaccion,
+                nombre: r.nombre,
+                precio: parseFloat(r.precio),
+                cantidad: r.cantidad,
+                stockMax: r.stockMax + r.cantidad // Stock disponible considerando lo que ya tiene la orden
+            }));
+            
+            renderCarritoEdit();
             document.getElementById('modalEditar').style.display = 'flex';
         }
-        function cerrarModalEditar() {
-            document.getElementById('modalEditar').style.display = 'none';
-        }
+        function cerrarModalEditar() { document.getElementById('modalEditar').style.display = 'none'; }
 
-        // Modal Creación Directa OT
-        function abrirModalCrear() {
-            document.getElementById('modalCrearOT').style.display = 'flex';
-        }
-        function cerrarModalCrear() {
-            document.getElementById('modalCrearOT').style.display = 'none';
-        }
-
-        let carritoOT = [];
-
-        function filtrarCatalogoModal() {
-            let filtro = document.getElementById('buscadorRef').value.toLowerCase();
-            let filas = document.querySelectorAll('.fila-catalogo');
+        function filtrarCatalogoEdit() {
+            let filtro = document.getElementById('buscadorRefEdit').value.trim().toLowerCase();
+            let filas = document.querySelectorAll('.fila-catalogo-edit');
             filas.forEach(fila => {
-                let texto = fila.textContent.toLowerCase();
-                fila.style.display = texto.includes(filtro) ? '' : 'none';
+                if (filtro === '') {
+                    fila.style.display = 'none';
+                } else {
+                    let texto = fila.textContent.toLowerCase();
+                    fila.style.display = texto.includes(filtro) ? '' : 'none';
+                }
             });
         }
-
-        function agregarItemCarrito(idRef, nombre, precio, stockMax) {
-            let item = carritoOT.find(p => p.id_refaccion === idRef);
+        function agregarItemEdit(idRef, nombre, precio, stockMax) {
+            let item = carritoEdit.find(p => p.id_refaccion === idRef);
             if (item) {
-                if (item.cantidad + 1 > stockMax) {
-                    alert('Stock insuficiente.');
-                    return;
-                }
+                if (item.cantidad + 1 > stockMax) { alert('Stock insuficiente.'); return; }
                 item.cantidad++;
             } else {
-                carritoOT.push({ id_refaccion: idRef, nombre, precio, cantidad: 1, stockMax });
+                carritoEdit.push({ id_refaccion: idRef, nombre, precio, cantidad: 1, stockMax });
             }
-            renderCarritoOT();
+            renderCarritoEdit();
         }
-
-        function cambiarCantOT(idRef, cambio) {
-            let item = carritoOT.find(p => p.id_refaccion === idRef);
-            if (!item) return;
-            if (item.cantidad + cambio > item.stockMax) {
-                alert('Alcanzaste el stock máximo.');
-                return;
-            }
-            item.cantidad += cambio;
-            if (item.cantidad <= 0) {
-                carritoOT = carritoOT.filter(p => p.id_refaccion !== idRef);
-            }
-            renderCarritoOT();
-        }
-
-        function renderCarritoOT() {
-            let tbody = document.getElementById('carritoBody');
+        function renderCarritoEdit() {
+            let tbody = document.getElementById('carritoEditBody');
             tbody.innerHTML = '';
-            if (carritoOT.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">No hay refacciones añadidas.</td></tr>`;
-                document.getElementById('inputRefaccionesJson').value = '[]';
-                calcularTotalGeneral();
+            if (carritoEdit.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Sin refacciones.</td></tr>`;
+                document.getElementById('inputEditRefaccionesJson').value = '[]';
+                calcularTotalEdit();
                 return;
             }
-
-            carritoOT.forEach(p => {
+            carritoEdit.forEach(p => {
                 let subtotal = p.precio * p.cantidad;
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.nombre}</strong></td>
                         <td>$${p.precio.toFixed(2)}</td>
                         <td>
-                            <button type="button" style="padding:2px 6px;" onclick="cambiarCantOT(${p.id_refaccion}, -1)">-</button>
+                            <button type="button" onclick="cambiarCantEdit(${p.id_refaccion}, -1)">-</button>
                             <span style="margin:0 5px; font-weight:bold;">${p.cantidad}</span>
-                            <button type="button" style="padding:2px 6px;" onclick="cambiarCantOT(${p.id_refaccion}, 1)">+</button>
+                            <button type="button" onclick="cambiarCantEdit(${p.id_refaccion}, 1)">+</button>
                         </td>
                         <td>$${subtotal.toFixed(2)}</td>
-                        <td><button type="button" style="background:#ff4d4d; color:white; border:none; padding:3px 6px; border-radius:4px;" onclick="carritoOT = carritoOT.filter(x => x.id_refaccion !== ${p.id_refaccion}); renderCarritoOT();">X</button></td>
+                        <td><button type="button" style="background:#ff4d4d; color:white; border:none; padding:3px 6px; border-radius:4px;" onclick="carritoEdit = carritoEdit.filter(x => x.id_refaccion !== ${p.id_refaccion}); renderCarritoEdit();">X</button></td>
                     </tr>
                 `;
             });
-
-            document.getElementById('inputRefaccionesJson').value = JSON.stringify(carritoOT);
-            calcularTotalGeneral();
+            document.getElementById('inputEditRefaccionesJson').value = JSON.stringify(carritoEdit);
+            calcularTotalEdit();
         }
-
-        function calcularTotalGeneral() {
-            let subtotalMat = carritoOT.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            let manoObra = parseFloat(document.getElementById('inputManoObra').value) || 0;
+        function cambiarCantEdit(idRef, cambio) {
+            let item = carritoEdit.find(p => p.id_refaccion === idRef);
+            if (!item) return;
+            item.cantidad += cambio;
+            if (item.cantidad <= 0) {
+                carritoEdit = carritoEdit.filter(p => p.id_refaccion !== idRef);
+            }
+            renderCarritoEdit();
+        }
+        function calcularTotalEdit() {
+            let subtotalMat = carritoEdit.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            let manoObra = parseFloat(document.getElementById('edit_mano_obra').value) || 0;
             let total = subtotalMat + manoObra;
-            document.getElementById('totalGeneralText').innerText = '$' + total.toFixed(2);
+            document.getElementById('totalEditText').innerText = '$' + total.toFixed(2);
         }
     </script>
 </body>
