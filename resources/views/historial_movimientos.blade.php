@@ -202,7 +202,7 @@
                     <tbody>
                         @forelse($ventas as $v)
                             <tr>
-                                <td><strong>{{ $v->folioTicket }}</strong></td>
+                                <td><strong>{{ $v->folioVenta }}</strong></td>
                                 <td>{{ $v->created_at }}</td>
                                 <td>{{ $v->clienteMostrador }}</td>
                                 <td>{{ $v->cantidadArticulos }} unids.</td>
