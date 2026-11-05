@@ -137,11 +137,34 @@
                 @endif
 
                 <button type="submit" class="btn-ingresar">INGRESAR</button>
-                <button type="button" class="btn-olvide">OLVIDÉ MI CONTRASEÑA</button>
+                
+                <!-- BOTÓN CON LA FUNCIÓN JAVASCRIPT DE RECUPERACIÓN -->
+                <button type="button" class="btn-olvide" onclick="recuperarPassword()">OLVIDÉ MI CONTRASEÑA</button>
             </form>
         </div>
 
     </div>
+
+    <!-- SCRIPT PARA PREGUNTA DE SEGURIDAD -->
+    <script>
+        function recuperarPassword() {
+            // 1. Hacemos la pregunta de seguridad
+            let respuesta = prompt("Pregunta de seguridad: ¿En qué ciudad está el taller?");
+            
+            // 2. Verificamos la respuesta
+            if (respuesta !== null) {
+                // Convertimos a minúsculas y quitamos espacios al inicio/final para evitar errores comunes
+                let limpia = respuesta.toLowerCase().trim();
+                
+                // Aceptamos la respuesta con o sin acento
+                if (limpia === "leon" || limpia === "león") { 
+                    alert("Tu contraseña maestra es: bombas123");
+                } else {
+                    alert("Respuesta incorrecta. Acceso denegado.");
+                }
+            }
+        }
+    </script>
 
 </body>
 </html>
