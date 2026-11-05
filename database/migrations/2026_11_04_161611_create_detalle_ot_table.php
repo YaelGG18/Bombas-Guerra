@@ -10,8 +10,11 @@ return new class extends Migration
     {
         Schema::create('detalle_ot', function (Blueprint $table) {
             $table->increments('idDetalleOT');
-            $table->integer('idOT');
+            
+            // CAMBIO: unsignedInteger para que coincida con orden_trabajo
+            $table->unsignedInteger('idOT'); 
             $table->unsignedBigInteger('idRefaccion');
+            
             $table->integer('cantidad');
             $table->decimal('precioUnitarioHistorico', 10, 2);
 

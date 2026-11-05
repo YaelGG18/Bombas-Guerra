@@ -10,7 +10,10 @@ return new class extends Migration
     {
         Schema::create('garantia', function (Blueprint $table) {
             $table->increments('idGarantia');
-            $table->integer('idOT');
+            
+            // CAMBIO: unsignedInteger
+            $table->unsignedInteger('idOT'); 
+            
             $table->string('codigoVerificacion', 50);
             $table->date('fechalinicio');
             $table->integer('vigenciaDias');

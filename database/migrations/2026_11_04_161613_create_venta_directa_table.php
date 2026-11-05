@@ -11,8 +11,11 @@ return new class extends Migration
         Schema::create('venta_directa', function (Blueprint $table) {
             $table->increments('idVenta');
             $table->string('folioVenta', 50)->unique();
-            $table->integer('idCliente');
-            $table->integer('idUsuario')->nullable(); // Permite nulos según BaseFinal
+            
+            // CAMBIOS: unsignedInteger
+            $table->unsignedInteger('idCliente');
+            $table->unsignedInteger('idUsuario')->nullable(); 
+            
             $table->datetime('fechaVenta');
 
             $table->foreign('idCliente')->references('idCliente')->on('cliente')->onDelete('cascade');
