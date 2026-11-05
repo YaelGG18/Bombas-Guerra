@@ -7,6 +7,7 @@ use App\Http\Controllers\CotizController;
 use App\Http\Controllers\OrdenTrabajoController;
 use App\Http\Controllers\GarantiaController;
 use App\Http\Controllers\HistorialReporteController;
+use App\Http\Controllers\AuthController;
 
 // Ruta del Login (Pantalla Principal)
 Route::get('/', function () {
@@ -55,5 +56,7 @@ Route::delete('/refacciones/{id}', [RefaccionController::class, 'destroy']);
 Route::get('/cotizaciones', [CotizController::class, 'index'])->name('cotizaciones.index');
 Route::post('/generar-cotizacion', [CotizController::class, 'generarCotizacion'])->name('cotizacion.generar');
 
-
+Route::get('/login', [AuthController::class, 'index'])->name('login');
+Route::post('/login/procesar', [AuthController::class, 'procesarLogin'])->name('login.procesar');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 

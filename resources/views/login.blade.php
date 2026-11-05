@@ -95,6 +95,18 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        /* Estilo para el mensaje de error */
+        .alerta-error {
+            background-color: rgba(255, 77, 77, 0.1);
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -108,11 +120,21 @@
         <div class="caja-login">
             <h1>BOMBAS GUERRA</h1>
 
-            <form action="/barratareas" method="GET">
+            <!-- FORMULARIO CORREGIDO -->
+            <form action="{{ route('login.procesar') }}" method="POST">
+                @csrf
+                
                 <div class="grupo-campo">
                     <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña">
+                    <input type="password" id="password" name="password" placeholder="Ingresa tu contraseña" required>
                 </div>
+
+                <!-- Mostrar el error si existe en la sesión -->
+                @if(session('error'))
+                    <div class="alerta-error">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
                 <button type="submit" class="btn-ingresar">INGRESAR</button>
                 <button type="button" class="btn-olvide">OLVIDÉ MI CONTRASEÑA</button>
