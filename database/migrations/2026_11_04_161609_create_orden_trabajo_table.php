@@ -11,15 +11,19 @@ return new class extends Migration
         Schema::create('orden_trabajo', function (Blueprint $table) {
             $table->increments('idOT');
             $table->string('folioOT', 50)->unique();
-            $table->integer('idCliente');
-            $table->integer('idUsuario')->nullable(); // Permite nulos según BaseFinal
+            
+            // CAMBIO CLAVE: Usamos unsignedInteger para que coincida con increments('idCliente')
+            $table->unsignedInteger('idCliente');
+            $table->unsignedInteger('idUsuario')->nullable(); 
+
             $table->text('diagnosticoFalla');
             $table->decimal('costoManoObra', 10, 2);
             $table->string('estadoOT', 50)->nullable()->default('En Proceso');
             $table->datetime('fechaCreacion');
 
-            $table->foreign('idCliente')->references('idCliente')->on('cliente');
-            $table->foreign('idUsuario')->references('idUsuario')->on('usuario');
+            // Definición de las llaves foráneas
+            $table->foreign('idCliente')->references('idCliente')->on('cliente')->onDelete('cascade');
+            $table->foreign('idUsuario')->references('idUsuario')->on('usuario')->onDelete('set null');
         });
     }
 
