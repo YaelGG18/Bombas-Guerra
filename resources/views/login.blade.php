@@ -149,15 +149,13 @@
     <script>
         function recuperarPassword() {
             // 1. Hacemos la pregunta de seguridad
-            let respuesta = prompt("Pregunta de seguridad: ¿En qué ciudad está el taller?");
+            let respuesta = prompt("Pregunta de seguridad: ¿Como se llama tu sobrino que hizo el sistema?");
             
-            // 2. Verificamos la respuesta
             if (respuesta !== null) {
-                // Convertimos a minúsculas y quitamos espacios al inicio/final para evitar errores comunes
                 let limpia = respuesta.toLowerCase().trim();
                 
                 // Aceptamos la respuesta con o sin acento
-                if (limpia === "leon" || limpia === "león") { 
+                if (limpia === "Yael" || limpia === "yael") { 
                     alert("Tu contraseña maestra es: bombas123");
                 } else {
                     alert("Respuesta incorrecta. Acceso denegado.");
