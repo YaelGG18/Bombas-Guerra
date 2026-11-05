@@ -52,8 +52,8 @@ class GarantiaController extends Controller
         // Órdenes Terminadas disponibles para emitir nueva garantía
         $ordenesTerminadas = DB::table('orden_trabajo')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
-            // Ampliamos el filtro para aceptar diferentes variaciones de estado final
-            ->whereIn('orden_trabajo.estadoOT', ['Terminada', 'Finalizada', 'Entregada'])
+            // AQUÍ ESTÁ LA CORRECCIÓN: Agregamos 'Terminado' a la lista
+            ->whereIn('orden_trabajo.estadoOT', ['Terminado', 'Terminada', 'Finalizada', 'Entregada'])
             ->whereNotIn('orden_trabajo.idOT', function($q) {
                 $q->select('idOT')->from('garantia'); 
             })
