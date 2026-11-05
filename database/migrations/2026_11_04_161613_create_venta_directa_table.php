@@ -6,20 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('venta_directa', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->increments('idVenta');
+            $table->string('folioVenta', 50)->unique();
+            $table->integer('idCliente');
+            $table->integer('idUsuario')->nullable(); // Permite nulos según BaseFinal
+            $table->datetime('fechaVenta');
+
+            $table->foreign('idCliente')->references('idCliente')->on('cliente')->onDelete('cascade');
+            $table->foreign('idUsuario')->references('idUsuario')->on('usuario');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('venta_directa');

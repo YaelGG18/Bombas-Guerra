@@ -6,20 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('detalle_ot', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->increments('idDetalleOT');
+            $table->integer('idOT');
+            $table->unsignedBigInteger('idRefaccion');
+            $table->integer('cantidad');
+            $table->decimal('precioUnitarioHistorico', 10, 2);
+
+            $table->foreign('idOT')->references('idOT')->on('orden_trabajo')->onDelete('cascade');
+            $table->foreign('idRefaccion')->references('id')->on('refacciones')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('detalle_ot');

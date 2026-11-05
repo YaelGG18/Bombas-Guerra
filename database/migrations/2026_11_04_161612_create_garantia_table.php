@@ -6,20 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('garantia', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->increments('idGarantia');
+            $table->integer('idOT');
+            $table->string('codigoVerificacion', 50);
+            $table->date('fechalinicio');
+            $table->integer('vigenciaDias');
+            $table->string('estadoGarantia', 50)->nullable()->default('Vigente');
+
+            $table->foreign('idOT')->references('idOT')->on('orden_trabajo')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('garantia');
