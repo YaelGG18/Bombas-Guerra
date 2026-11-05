@@ -148,11 +148,13 @@
                                 <div class="item-refaccion" data-nombre="{{ strtolower($refaccion->nombre) }}">
                                     <div style="flex-grow: 1;">
                                         <strong style="color: #002B54; font-size: 14px;">{{ $refaccion->nombre }}</strong><br>
-                                        <small style="color: #666;">Stock: {{ $refaccion->stock ?? 0 }}</small>                                    </div>
+                                        <small style="color: #666;">Stock: {{ $refaccion->stock ?? 0 }}</small>
+                                    </div>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-weight: bold; color: #4CAF50;">${{ number_format($refaccion->precio_venta ?? 0, 2) }}</span>                                        
-                                        <!-- Botón conectado a JS -->
-                                    <button type="button" class="btn-add-pieza" onclick="agregarPieza({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio_venta ?? 0 }})" title="Agregar a cotización">                                            <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                                        <span style="font-weight: bold; color: #4CAF50;">${{ number_format($refaccion->precio_venta ?? 0, 2) }}</span>                                        
+                                        <!-- Botón conectado a JS (CON PARÁMETRO DE STOCK AGREGADO) -->
+                                        <button type="button" class="btn-add-pieza" onclick="agregarPieza({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio_venta ?? 0 }}, {{ $refaccion->stock ?? 0 }})" title="Agregar a cotización">
+                                            <span class="material-symbols-outlined" style="font-size: 18px;">add</span>
                                         </button>
                                     </div>
                                 </div>
@@ -232,18 +234,27 @@
         // 2. Lógica del Carrito de Cotización
         let carrito = [];
 
-        function agregarPieza(id, nombre, precio) {
-            // Verificar si ya existe en el carrito
+        function agregarPieza(id, nombre, precio, stockMax) {
+            if (stockMax <= 0) {
+                alert('No hay stock disponible para esta refacción.');
+                return;
+            }
+
             let existe = carrito.find(item => item.id_refaccion === id);
             
             if (existe) {
+                if (existe.cantidad + 1 > stockMax) {
+                    alert('Solo tienes ' + stockMax + ' piezas disponibles en el inventario.');
+                    return;
+                }
                 existe.cantidad += 1;
             } else {
                 carrito.push({
                     id_refaccion: id,
                     nombre: nombre,
                     precio: parseFloat(precio),
-                    cantidad: 1
+                    cantidad: 1,
+                    stockMax: parseInt(stockMax)
                 });
             }
             
@@ -253,8 +264,17 @@
         function cambiarCantidad(id, nuevaCantidad) {
             let item = carrito.find(i => i.id_refaccion === id);
             if (item) {
-                item.cantidad = parseInt(nuevaCantidad) || 1;
-                if(item.cantidad < 1) item.cantidad = 1;
+                let cantidadDeseada = parseInt(nuevaCantidad) || 1;
+                
+                if (cantidadDeseada > item.stockMax) {
+                    alert('Límite excedido. Solo tienes ' + item.stockMax + ' piezas disponibles de ' + item.nombre + '.');
+                    item.cantidad = item.stockMax; 
+                } else if (cantidadDeseada < 1) {
+                    item.cantidad = 1;
+                } else {
+                    item.cantidad = cantidadDeseada;
+                }
+                
                 actualizarVistaCarrito();
             }
         }
@@ -288,7 +308,7 @@
                                 <span style="color: #666;">$${item.precio.toFixed(2)} c/u</span>
                             </div>
                             <div class="controles">
-                                <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${item.id_refaccion}, this.value)">
+                                <input type="number" min="1" max="${item.stockMax}" value="${item.cantidad}" onchange="cambiarCantidad(${item.id_refaccion}, this.value)">
                                 <strong style="color:#002B54; width:60px; text-align:right;">$${totalItem.toFixed(2)}</strong>
                                 <button type="button" class="btn-remove-pieza" onclick="eliminarPieza(${item.id_refaccion})">
                                     <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
@@ -308,7 +328,6 @@
         }
 
         function calcularTotalFinal(subtotalCalculado = null) {
-            // Obtener subtotal actual si no se pasa como parámetro
             if(subtotalCalculado === null) {
                 let subtotalStr = document.getElementById('txt-subtotal').innerText.replace('$', '');
                 subtotalCalculado = parseFloat(subtotalStr) || 0;
@@ -319,10 +338,8 @@
             document.getElementById('txt-total').innerText = '$' + total.toFixed(2);
         }
 
-        // Recalcular total si el usuario escribe en el input de Mano de Obra
         document.getElementById('mano_obra').addEventListener('input', () => calcularTotalFinal());
         
-        // Prevenir el envío del form con Enter (para evitar enviar accidentalmente al buscar piezas)
         document.getElementById('form-cotizacion').addEventListener('keypress', function(e) {
             if (e.keyCode === 13 && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();
