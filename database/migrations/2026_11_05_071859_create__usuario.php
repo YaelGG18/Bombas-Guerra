@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usuario', function (Blueprint $table) {
-            $table->increments('idUsuario');
+            $table->increments('idUsuario'); // Esto es INT UNSIGNED
             $table->string('contrasenaHash', 255);
         });
     }

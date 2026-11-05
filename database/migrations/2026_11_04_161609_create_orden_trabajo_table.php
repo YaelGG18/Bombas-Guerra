@@ -12,16 +12,15 @@ return new class extends Migration
             $table->increments('idOT');
             $table->string('folioOT', 50)->unique();
             
-            // CAMBIO CLAVE: Usamos unsignedInteger para que coincida con increments('idCliente')
             $table->unsignedInteger('idCliente');
-            $table->unsignedInteger('idUsuario')->nullable(); 
+            $table->unsignedInteger('idUsuario')->nullable(); // Coincide exactamente con el increments de usuario
 
             $table->text('diagnosticoFalla');
             $table->decimal('costoManoObra', 10, 2);
             $table->string('estadoOT', 50)->nullable()->default('En Proceso');
             $table->datetime('fechaCreacion');
 
-            // Definición de las llaves foráneas
+            // Llaves foráneas
             $table->foreign('idCliente')->references('idCliente')->on('cliente')->onDelete('cascade');
             $table->foreign('idUsuario')->references('idUsuario')->on('usuario')->onDelete('set null');
         });
