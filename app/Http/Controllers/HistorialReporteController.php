@@ -15,7 +15,9 @@ class HistorialReporteController extends Controller
         $fechaInicio = $request->input('fecha_inicio');
         $fechaFin = $request->input('fecha_fin');
 
+        // ----------------------------------------------------
         // 1. Consultar Historial de Órdenes de Trabajo
+        // ----------------------------------------------------
         $queryOT = DB::table('orden_trabajo')
             ->leftJoin('cliente', 'orden_trabajo.idCliente', '=', 'cliente.idCliente')
             ->select(
@@ -38,23 +40,37 @@ class HistorialReporteController extends Controller
 
         if ($fechaInicio && $fechaFin) {
             $queryOT->whereBetween('orden_trabajo.fechaCreacion', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
+        } elseif ($fechaInicio) {
+            $queryOT->where('orden_trabajo.fechaCreacion', '>=', $fechaInicio . ' 00:00:00');
+        } elseif ($fechaFin) {
+            $queryOT->where('orden_trabajo.fechaCreacion', '<=', $fechaFin . ' 23:59:59');
         }
         
         $ordenes = $queryOT->get();
 
-        // Calculamos el Total General para cada Orden de Trabajo
         foreach ($ordenes as $orden) {
             $orden->totalGeneral = $orden->costoManoObra + $orden->refaccionesTotal;
         }
 
+        // ----------------------------------------------------
         // 2. Consultar Historial de Ventas Directas
+        // ----------------------------------------------------
         $queryVentas = DB::table('venta_directa')
             ->leftJoin('cliente', 'venta_directa.idCliente', '=', 'cliente.idCliente')
             ->select(
                 'venta_directa.*', 
                 'cliente.nombreCliente',
                 'cliente.telefono'
-            );
+            )
+            ->addSelect([
+                'totalGeneral' => DB::table('detalle_venta')
+                    ->whereColumn('detalle_venta.idVenta', 'venta_directa.idVenta')
+                    ->selectRaw('COALESCE(SUM(cantidad * precioUnitario), 0)'),
+                
+                'cantidadArticulos' => DB::table('detalle_venta')
+                    ->whereColumn('detalle_venta.idVenta', 'venta_directa.idVenta')
+                    ->selectRaw('COALESCE(SUM(cantidad), 0)')
+            ]);
 
         if ($search) {
             $queryVentas->where(function($q) use ($search) {
@@ -65,17 +81,13 @@ class HistorialReporteController extends Controller
 
         if ($fechaInicio && $fechaFin) {
             $queryVentas->whereBetween('venta_directa.fechaVenta', [$fechaInicio . ' 00:00:00', $fechaFin . ' 23:59:59']);
+        } elseif ($fechaInicio) {
+            $queryVentas->where('venta_directa.fechaVenta', '>=', $fechaInicio . ' 00:00:00');
+        } elseif ($fechaFin) {
+            $queryVentas->where('venta_directa.fechaVenta', '<=', $fechaFin . ' 23:59:59');
         }
         
         $ventas = $queryVentas->get();
-        
-
-        // Agregamos variables de respaldo para Ventas Directas 
-        // (Previene errores si tu vista también pide estos datos en la pestaña de ventas)
-        foreach ($ventas as $venta) {
-            $venta->totalGeneral = 0; // Sustituir por la consulta real a detalle_venta si la creas luego
-            $venta->cantidadArticulos = 0; 
-        }
 
         return view('historial_movimientos', compact('ordenes', 'ventas', 'tabActiva', 'fechaInicio', 'fechaFin', 'search'));
     }

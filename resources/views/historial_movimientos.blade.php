@@ -208,7 +208,6 @@
             <td>{{ $v->nombreCliente }}</td>
             <td>{{ $v->cantidadArticulos }} unids.</td>
             <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
-        </tr> e72d9d7787adb9ee8a598cf84fa1fbb4f7329f55
                                 <td>{{ $v->nombreCliente }}</td>
                                 <td>{{ $v->cantidadArticulos }} unids.</td>
                                 <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
