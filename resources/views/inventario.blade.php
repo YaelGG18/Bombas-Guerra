@@ -180,8 +180,26 @@
         }
         .status-vigente {
             color: #4CAF50;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 12px;
+        }
+        .status-bajo {
+            color: #d97706;
+            background-color: #fef3c7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
+        }
+        .status-agotado {
+            color: #dc2626;
+            background-color: #fee2e2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block;
         }
         .btn-modificar {
             background-color: #002347;
@@ -296,7 +314,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th> <!-- Columna ID agregada al inicio -->
+                        <th>ID</th>
                         <th>Nombre</th>
                         <th>Categoría</th>
                         <th>Marca</th>
@@ -437,22 +455,34 @@
                     </tr>
                 `;
             } else {
-                tbody.innerHTML = filtradas.map(r => `
-                    <tr>
-                        <td><strong>REF-${String(r.id).padStart(3, '0')}</strong></td> <!-- Celda ID renderizada -->
-                        <td>${r.nombre}</td>
-                        <td>${r.categoria}</td>
-                        <td>${r.marca}</td>
-                        <td>$${parseFloat(r.precio_compra).toFixed(2)}</td>
-                        <td>$${parseFloat(r.precio_venta).toFixed(2)}</td>
-                        <td><strong>${r.stock}</strong> pzas</td>
-                        <td>${r.stock_minimo ?? 0} pzas</td>
-                        <td><span class="status-vigente">● DISPONIBLE</span></td>
-                        <td>
-                            <button class="btn-modificar" onclick='abrirModalModal(${JSON.stringify(r).replace(/'/g, "&apos;")})'>Modificar</button>
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = filtradas.map(r => {
+                    const stock = parseInt(r.stock) || 0;
+                    const stockMin = parseInt(r.stock_minimo) || 0;
+
+                    let estadoHtml = '<span class="status-vigente">● DISPONIBLE</span>';
+                    if (stock <= 0) {
+                        estadoHtml = '<span class="status-agotado">⚠ SIN STOCK</span>';
+                    } else if (stockMin > 0 && stock <= stockMin) {
+                        estadoHtml = '<span class="status-bajo">⚠ STOCK BAJO</span>';
+                    }
+
+                    return `
+                        <tr>
+                            <td><strong>REF-${String(r.id).padStart(3, '0')}</strong></td>
+                            <td>${r.nombre}</td>
+                            <td>${r.categoria}</td>
+                            <td>${r.marca}</td>
+                            <td>$${parseFloat(r.precio_compra).toFixed(2)}</td>
+                            <td>$${parseFloat(r.precio_venta).toFixed(2)}</td>
+                            <td><strong>${stock}</strong> pzas</td>
+                            <td>${stockMin} pzas</td>
+                            <td>${estadoHtml}</td>
+                            <td>
+                                <button class="btn-modificar" onclick='abrirModalModal(${JSON.stringify(r).replace(/'/g, "&apos;")})'>Modificar</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
             
             contador.innerText = `Mostrando ${filtradas.length} refacciones en total`;
