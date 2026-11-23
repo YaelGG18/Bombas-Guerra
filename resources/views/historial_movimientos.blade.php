@@ -62,9 +62,39 @@
 
         .contenido-tab { display: none; }
         .contenido-tab.activo { display: block; }
+
+        /* ESTILOS EXCLUSIVOS PARA IMPRESIÓN / PDF */
+        @media print {
+            .sidebar,
+            .tabs-container,
+            .filtros-grid,
+            .footer-acciones {
+                display: none !important;
+            }
+            body {
+                background-color: white !important;
+                display: block !important;
+            }
+            .main-content {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .contenedor-tabla {
+                box-shadow: none !important;
+                border: 1px solid #ccc;
+            }
+            th, td {
+                padding: 8px 10px !important;
+                font-size: 12px !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+    @php
+        $hayBusqueda = request()->filled('fecha_inicio') || request()->filled('fecha_fin') || request()->filled('search');
+    @endphp
 
     <!-- Menú Lateral -->
     <div class="sidebar">
@@ -129,10 +159,10 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Búsqueda Rápida</label>
+                <label>Búsqueda Rápida (Presiona Enter)</label>
                 <div class="input-contenedor con-icono">
                     <span class="material-symbols-outlined icono-input">search</span>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Folio OT, Cliente..." onchange="this.form.submit()">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Folio OT, Cliente y presiona Enter...">
                 </div>
             </div>
         </form>
@@ -153,34 +183,42 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($ordenes as $ot)
-                            <tr>
-                                <td><strong>{{ $ot->folioOT }}</strong></td>
-                                <td>{{ $ot->fechaCreacion }}</td>
-                                <td>
-                                    {{ $ot->nombreCliente }}<br>
-                                    <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
-                                </td>
-                                <td>${{ number_format($ot->refaccionesTotal, 2) }}</td>
-                                <td>${{ number_format($ot->costoManoObra, 2) }}</td>
-                                <td><strong>${{ number_format($ot->totalGeneral, 2) }}</strong></td>
-                                <td>
-                                    @if($ot->estadoOT == 'En Proceso')
-                                        <span style="color: #d97706; font-weight: bold;">En Proceso</span>
-                                    @elseif($ot->estadoOT == 'Terminado')
-                                        <span style="color: #065f46; font-weight: bold;">Terminado</span>
-                                    @else
-                                        <span style="color: #991b1b; font-weight: bold;">Cancelado</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
+                        @if(!$hayBusqueda)
                             <tr>
                                 <td colspan="7" class="mensaje-vacio">
-                                    No hay movimientos registrados.
+                                    Selecciona una fecha o escribe en el buscador y presiona Enter para consultar las Órdenes de Trabajo.
                                 </td>
                             </tr>
-                        @endforelse
+                        @else
+                            @forelse($ordenes as $ot)
+                                <tr>
+                                    <td><strong>{{ $ot->folioOT }}</strong></td>
+                                    <td>{{ $ot->fechaCreacion }}</td>
+                                    <td>
+                                        {{ $ot->nombreCliente }}<br>
+                                        <small style="color: #003366; font-weight: bold;">Tel: {{ $ot->telefono }}</small>
+                                    </td>
+                                    <td>${{ number_format($ot->refaccionesTotal, 2) }}</td>
+                                    <td>${{ number_format($ot->costoManoObra, 2) }}</td>
+                                    <td><strong>${{ number_format($ot->totalGeneral, 2) }}</strong></td>
+                                    <td>
+                                        @if($ot->estadoOT == 'En Proceso')
+                                            <span style="color: #d97706; font-weight: bold;">En Proceso</span>
+                                        @elseif($ot->estadoOT == 'Terminado')
+                                            <span style="color: #065f46; font-weight: bold;">Terminado</span>
+                                        @else
+                                            <span style="color: #991b1b; font-weight: bold;">Cancelado</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="mensaje-vacio">
+                                        No hay movimientos registrados.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -201,26 +239,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($ventas as $v)
-                            <tr>
-<tr>
-            <td><strong>{{ $v->folioVenta }}</strong></td>
-            <td>{{ $v->fechaVenta }}</td>
-            <td>{{ $v->nombreCliente }}</td>
-            <td>{{ $v->cantidadArticulos }} unids.</td>
-            <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
-                                <td>{{ $v->nombreCliente }}</td>
-                                <td>{{ $v->cantidadArticulos }} unids.</td>
-                                <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
-                                <td><span style="color: #065f46; font-weight: bold;">Completado</span></td>
-                            </tr>
-                        @empty
+                        @if(!$hayBusqueda)
                             <tr>
                                 <td colspan="6" class="mensaje-vacio">
-                                    No hay movimientos registrados.
+                                    Selecciona una fecha o escribe en el buscador y presiona Enter para consultar las Ventas Directas.
                                 </td>
                             </tr>
-                        @endforelse
+                        @else
+                            @forelse($ventas as $v)
+                                <tr>
+                                    <td><strong>{{ $v->folioVenta }}</strong></td>
+                                    <td>{{ $v->fechaVenta }}</td>
+                                    <td>{{ $v->nombreCliente }}</td>
+                                    <td>{{ $v->cantidadArticulos }} unids.</td>
+                                    <td><strong>${{ number_format($v->totalGeneral, 2) }}</strong></td>
+                                    <td><span style="color: #065f46; font-weight: bold;">Completado</span></td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="mensaje-vacio">
+                                        No hay movimientos registrados.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @endif
                     </tbody>
                 </table>
             </div>
@@ -231,7 +273,7 @@
             <p class="nota-auditoria">* Toda reimpresión o exportación queda registrada bajo auditoría de Admin Taller.</p>
             <button class="btn-exportar" id="btn-accion-exportar" onclick="window.print()">
                 <span class="material-symbols-outlined" style="font-size: 18px;">picture_as_pdf</span> 
-                <span id="btnTextoExportar">Exportar Venta Directa a PDF</span>
+                <span id="btnTextoExportar">{{ $tabActiva == 'ot' ? 'Exportar OT a PDF' : 'Exportar Venta Directa a PDF' }}</span>
             </button>
         </div>
 
