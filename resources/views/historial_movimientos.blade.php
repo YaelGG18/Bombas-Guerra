@@ -270,7 +270,7 @@
 
         <!-- Footer común de acciones -->
         <div class="footer-acciones">
-            <p class="nota-auditoria">* Toda reimpresión o exportación queda registrada bajo auditoría de Admin Taller.</p>
+            <p class="nota-auditoria"></p>
             <button class="btn-exportar" id="btn-accion-exportar" onclick="window.print()">
                 <span class="material-symbols-outlined" style="font-size: 18px;">picture_as_pdf</span> 
                 <span id="btnTextoExportar">{{ $tabActiva == 'ot' ? 'Exportar OT a PDF' : 'Exportar Venta Directa a PDF' }}</span>
