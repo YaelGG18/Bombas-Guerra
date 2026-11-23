@@ -60,3 +60,6 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login/procesar', [AuthController::class, 'procesarLogin'])->name('login.procesar');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
+Route::get('/ayuda', function () {
+    return view('ayuda');
+})->name('ayuda');

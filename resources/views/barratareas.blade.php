@@ -232,6 +232,14 @@
                 <p>Movimientos, salidas y ventas registradas.</p>
             </a>
 
+            <a href="/ayuda" class="tarjeta-modulo">
+                <div class="icono-tarjeta">
+                    <span class="material-symbols-outlined">help</span>
+                </div>
+                <h3>Ayuda</h3>
+                <p>Manual de usuario y guía rápida del sistema.</p>
+            </a>
+
         </div>
     </div>
 
