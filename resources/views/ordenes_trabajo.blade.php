@@ -280,7 +280,11 @@
                                 <td>${{ number_format($ref->precio_venta, 2) }}</td>
                                 <td><strong>{{ $ref->stock }}</strong></td>
                                 <td>
-                                    <button type="button" class="btn-modificar" onclick="agregarItemEdit({{ $ref->id }}, '{{ $ref->nombre }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
+                                    @if($ref->stock <= 0)
+                                        <button type="button" class="btn-modificar" disabled>Sin stock</button>
+                                    @else
+                                        <button type="button" class="btn-modificar" onclick="agregarItemEdit({{ $ref->id }}, '{{ addslashes($ref->nombre) }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -383,7 +387,11 @@
                                 <td>${{ number_format($ref->precio_venta, 2) }}</td>
                                 <td><strong>{{ $ref->stock }}</strong></td>
                                 <td>
-                                    <button type="button" class="btn-modificar" onclick="agregarItemCreate({{ $ref->id }}, '{{ $ref->nombre }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
+                                    @if($ref->stock <= 0)
+                                        <button type="button" class="btn-modificar" disabled>Sin stock</button>
+                                    @else
+                                        <button type="button" class="btn-modificar" onclick="agregarItemCreate({{ $ref->id }}, '{{ addslashes($ref->nombre) }}', {{ $ref->precio_venta }}, {{ $ref->stock }})">Añadir</button>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -448,9 +456,16 @@
             });
         }
         function agregarItemCreate(idRef, nombre, precio, stockMax) {
+            if (stockMax <= 0) {
+                alert('No hay stock disponible para esta refacción.');
+                return;
+            }
             let item = carritoCreate.find(p => p.id_refaccion === idRef);
             if (item) {
-                if (item.cantidad + 1 > stockMax) { alert('Stock insuficiente.'); return; }
+                if (item.cantidad + 1 > item.stockMax) {
+                    alert('Stock insuficiente. Solo hay ' + item.stockMax + ' piezas disponibles.');
+                    return;
+                }
                 item.cantidad++;
             } else {
                 carritoCreate.push({ id_refaccion: idRef, nombre, precio, cantidad: 1, stockMax });
@@ -488,6 +503,10 @@
         function cambiarCantCreate(idRef, cambio) {
             let item = carritoCreate.find(p => p.id_refaccion === idRef);
             if (!item) return;
+            if (cambio > 0 && item.cantidad + cambio > item.stockMax) {
+                alert('Stock insuficiente. Solo hay ' + item.stockMax + ' piezas disponibles.');
+                return;
+            }
             item.cantidad += cambio;
             if (item.cantidad <= 0) {
                 carritoCreate = carritoCreate.filter(p => p.id_refaccion !== idRef);
@@ -539,9 +558,16 @@
         function agregarItemEdit(idRef, nombre, precio, stockMax) {
             let item = carritoEdit.find(p => p.id_refaccion === idRef);
             if (item) {
-                if (item.cantidad + 1 > stockMax) { alert('Stock insuficiente.'); return; }
+                if (item.cantidad + 1 > item.stockMax) {
+                    alert('Stock insuficiente. Solo hay ' + item.stockMax + ' piezas disponibles en total.');
+                    return;
+                }
                 item.cantidad++;
             } else {
+                if (stockMax <= 0) {
+                    alert('No hay stock disponible para esta refacción.');
+                    return;
+                }
                 carritoEdit.push({ id_refaccion: idRef, nombre, precio, cantidad: 1, stockMax });
             }
             renderCarritoEdit();
@@ -577,6 +603,10 @@
         function cambiarCantEdit(idRef, cambio) {
             let item = carritoEdit.find(p => p.id_refaccion === idRef);
             if (!item) return;
+            if (cambio > 0 && item.cantidad + cambio > item.stockMax) {
+                alert('Stock insuficiente. Solo hay ' + item.stockMax + ' piezas disponibles en total.');
+                return;
+            }
             item.cantidad += cambio;
             if (item.cantidad <= 0) {
                 carritoEdit = carritoEdit.filter(p => p.id_refaccion !== idRef);
