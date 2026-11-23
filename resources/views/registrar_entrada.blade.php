@@ -293,6 +293,7 @@
                         Historial y Reportes
                     </a>
                 </li>
+                <li><a href="/ayuda"><span class="material-symbols-outlined">help</span> Ayuda</a></li>
             </ul>
         </div>
 

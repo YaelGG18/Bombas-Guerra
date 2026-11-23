@@ -281,7 +281,7 @@
                 <li><a href="/ordenes_trabajo"><span class="material-symbols-outlined">build</span> Órdenes de Trabajo</a></li>
                 <li><a href="/garantias"><span class="material-symbols-outlined">verified_user</span> Garantías</a></li>
                 <li><a href="/historial_movimientos"><span class="material-symbols-outlined">bar_chart</span> Historial y Reportes</a></li>
-            </ul>
+                <li><a href="/ayuda"><span class="material-symbols-outlined">help</span> Ayuda</a></li>
         </div>
         <a href="/" class="sidebar-footer" title="Cerrar Sesión / Volver al Login">
             <span class="material-symbols-outlined icono-admin">account_circle</span>
@@ -521,4 +521,4 @@
         });
     </script>
 </body>
-</html>
+</html>       
