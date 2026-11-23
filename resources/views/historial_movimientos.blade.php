@@ -176,7 +176,7 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="mensaje-vacio">
-                                    Utilice los filtros de fecha o la búsqueda rápida para consultar las órdenes de trabajo.
+                                    No hay movimientos registrados.
                                 </td>
                             </tr>
                         @endforelse
@@ -216,7 +216,7 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="mensaje-vacio">
-                                    Utilice los filtros de fecha o la búsqueda rápida para consultar las ventas directas.
+                                    No hay movimientos registrados.
                                 </td>
                             </tr>
                         @endforelse
