@@ -159,7 +159,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Búsqueda Rápida (Presiona Enter)</label>
+                <label>Búsqueda(Presiona Enter)</label>
                 <div class="input-contenedor con-icono">
                     <span class="material-symbols-outlined icono-input">search</span>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por Folio OT, Cliente y presiona Enter...">
