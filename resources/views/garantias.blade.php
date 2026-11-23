@@ -109,6 +109,10 @@
 </head>
 <body>
 
+    @php
+        $hayBusqueda = request()->filled('search');
+    @endphp
+
     <!-- Menú Lateral -->
     <div class="sidebar">
         <div>
@@ -191,44 +195,52 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($garantias as $gar)
-                        @php
-                            $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
-                        @endphp
-                        <tr>
-                            <td><strong>{{ $gar->codigoVerificacion }}</strong></td>
-                            <td>{{ $gar->folioOT }}</td>
-                            <td>
-                                {{ $gar->nombreCliente }}<br>
-                                <small style="color: #003366; font-weight: bold;">Tel: {{ $gar->telefono }}</small>
-                            </td>
-                            <td>{{ $gar->fechalinicio }}</td>
-                            <td>{{ $gar->vigenciaDias }} días</td>
-                            <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td>
-                            <td>
-                                @if($gar->estadoGarantia == 'Vigente')
-                                    <span class="badge-vigente">Vigente</span>
-                                @else
-                                    <span class="badge-vencida">Vencida</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
-                                    <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
+                    @if(!$hayBusqueda)
                         <tr>
                             <td colspan="8" class="mensaje-vacio">
-                                {{ request('search') || request('ot') ? 'No se encontraron garantías registradas.' : 'Utilice el buscador superior o emita una nueva garantía.' }}
+                                Utilice el buscador superior para consultar las garantías registradas.
                             </td>
                         </tr>
-                    @endforelse
+                    @else
+                        @forelse($garantias as $gar)
+                            @php
+                                $fechaVencimiento = \Carbon\Carbon::parse($gar->fechalinicio)->addDays($gar->vigenciaDias)->toDateString();
+                            @endphp
+                            <tr>
+                                <td><strong>{{ $gar->codigoVerificacion }}</strong></td>
+                                <td>{{ $gar->folioOT }}</td>
+                                <td>
+                                    {{ $gar->nombreCliente }}<br>
+                                    <small style="color: #003366; font-weight: bold;">Tel: {{ $gar->telefono }}</small>
+                                </td>
+                                <td>{{ $gar->fechalinicio }}</td>
+                                <td>{{ $gar->vigenciaDias }} días</td>
+                                <td><strong style="color: #002B54;">{{ $fechaVencimiento }}</strong></td>
+                                <td>
+                                    @if($gar->estadoGarantia == 'Vigente')
+                                        <span class="badge-vigente">Vigente</span>
+                                    @else
+                                        <span class="badge-vencida">Vencida</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <button class="btn-imprimir" onclick="imprimirTicket('{{ $gar->codigoVerificacion }}', '{{ $gar->folioOT }}', '{{ $gar->nombreCliente }}', '{{ $gar->fechalinicio }}', '{{ $gar->vigenciaDias }}', '{{ $fechaVencimiento }}')">
+                                        <span class="material-symbols-outlined" style="font-size: 16px;">print</span> Imprimir
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="mensaje-vacio">
+                                    No se encontraron garantías registradas.
+                                </td>
+                            </tr>
+                        @endforelse
+                    @endif
                 </tbody>
             </table>
             <div class="footer-tabla">
-                <span>Mostrando {{ count($garantias) }} registros</span>
+                <span>Mostrando {{ $hayBusqueda ? count($garantias) : 0 }} registros</span>
                 <span>BOMBAS GUERRA S.A. DE C.V.</span>
             </div>
         </div>
