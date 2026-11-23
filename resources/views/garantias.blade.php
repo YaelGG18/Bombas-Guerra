@@ -72,11 +72,38 @@
         .alert { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #d4edda; color: #155724; }
         .alert-error { padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; background-color: #f8d7da; color: #721c24; }
 
-        /* Estilo para impresión de ticket térmico */
+        /* Oculto siempre en pantalla */
+        #ticketImpresion {
+            display: none;
+        }
+
+        /* Estilo exclusivo para impresión de ticket térmico */
         @media print {
-            body * { visibility: hidden; }
-            #ticketImpresion, #ticketImpresion * { visibility: visible; }
-            #ticketImpresion { position: absolute; left: 0; top: 0; width: 100%; padding: 10px; font-family: monospace; font-size: 12px; color: black; background: white; }
+            @page {
+                margin: 0;
+            }
+            body {
+                background: white !important;
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .sidebar,
+            .main-content,
+            .modal-overlay {
+                display: none !important;
+            }
+            #ticketImpresion {
+                display: block !important;
+                width: 72mm; /* Cambia a 52mm si tu rollo es de 58mm */
+                margin: 0;
+                padding: 4mm;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 12px;
+                line-height: 1.4;
+                color: #000;
+                background: #fff;
+            }
         }
     </style>
 </head>
@@ -215,7 +242,7 @@
     </div>
 
     <!-- TICKET OCULTO PARA IMPRESIÓN TÉRMICA -->
-    <div id="ticketImpresion" style="display: none;">
+    <div id="ticketImpresion">
         <div style="text-align: center; font-weight: bold;">BOMBAS GUERRA S.A. DE C.V.</div>
         <div style="text-align: center;">CONTROL DE TALLER E INVENTARIOS</div>
         <div style="text-align: center;">--------------------------------</div>
@@ -285,10 +312,7 @@
             document.getElementById('t_vigencia').innerText = vigencia;
             document.getElementById('t_vencimiento').innerText = vencimiento;
 
-            let ticketDiv = document.getElementById('ticketImpresion');
-            ticketDiv.style.display = 'block';
             window.print();
-            ticketDiv.style.display = 'none';
         }
     </script>
 </body>
