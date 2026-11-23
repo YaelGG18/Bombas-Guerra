@@ -441,48 +441,49 @@
                 <input type="text" id="buscarInput" placeholder="Buscar por ID, Nombre, Marca o Categoría...">
             </div>
             <table id="tablaCatalogo">
-    <thead>
-        <tr>
-            <th>Ref / ID</th>
-            <th>Refacción / Marca / Categoría</th>
-            <th>Precio</th>
-            <th>Disp.</th>
-            <th>Añadir al Carrito</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse($refacciones as $refaccion)
-        <!-- Agregamos style="display: none;" para que nazcan ocultas -->
-        <tr class="fila-producto" style="display: none;">
-            <td>#{{ $refaccion->id }}</td>
-            <td>
-                <strong>{{ $refaccion->nombre }}</strong><br>
-                <small style="color: #666;">{{ $refaccion->marca }} - {{ $refaccion->categoria }}</small>
-            </td>
-            <td>${{ number_format($refaccion->precio_venta, 2) }}</td>
-            <td><strong>{{ $refaccion->stock }}</strong></td>
-            <td>
-                <button class="btn-add" onclick="agregarAlCarrito({{ $refaccion->id }}, '{{ $refaccion->nombre }}', {{ $refaccion->precio_venta }}, {{ $refaccion->stock }})">
-                    <span class="material-symbols-outlined" style="font-size: 16px;">add_shopping_cart</span> Añadir
-                </button>
-            </td>
-        </tr>
-        @empty
-        <tr>
-            <td colspan="5" class="mensaje-vacio">
-                No hay refacciones registradas con stock disponible.
-            </td>
-        </tr>
-        @endforelse
+                <thead>
+                    <tr>
+                        <th>Ref / ID</th>
+                        <th>Refacción / Marca / Categoría</th>
+                        <th>Precio</th>
+                        <th>Disp.</th>
+                        <th>Añadir al Carrito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($refacciones as $refaccion)
+                    <!-- Nacen ocultas hasta que se escriba en el buscador -->
+                    <tr class="fila-producto" style="display: none;">
+                        <td>#{{ $refaccion->id }}</td>
+                        <td>
+                            <strong>{{ $refaccion->nombre }}</strong><br>
+                            <small style="color: #666;">{{ $refaccion->marca }} - {{ $refaccion->categoria }}</small>
+                        </td>
+                        <td>${{ number_format($refaccion->precio_venta, 2) }}</td>
+                        <td><strong>{{ $refaccion->stock }}</strong></td>
+                        <td>
+                            <button class="btn-add" onclick="agregarAlCarrito({{ $refaccion->id }}, '{{ addslashes($refaccion->nombre) }}', {{ $refaccion->precio_venta }}, {{ $refaccion->stock }})">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">add_shopping_cart</span> Añadir
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
 
-        <!-- Fila de aviso cuando no hay texto ingresado -->
-        <tr id="mensajeInicial">
-            <td colspan="5" class="mensaje-vacio">
-                Escribe en el buscador para consultar el catálogo de refacciones.
-            </td>
-        </tr>
-    </tbody>
-</table>
+                    <!-- Fila de aviso cuando no hay texto ingresado -->
+                    <tr id="mensajeInicial">
+                        <td colspan="5" class="mensaje-vacio">
+                            Escribe en el buscador para consultar el catálogo de refacciones.
+                        </td>
+                    </tr>
+
+                    <!-- Fila oculta para cuando se busca y no hay coincidencias o stock -->
+                    <tr id="mensajeSinResultados" style="display: none;">
+                        <td colspan="5" class="mensaje-vacio">
+                            No se encontraron refacciones disponibles con esa búsqueda.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Carrito de Salida -->
@@ -546,25 +547,35 @@
         let carrito = [];
 
         // Buscador en tiempo real (Oculto si el input está vacío)
-document.getElementById('buscarInput').addEventListener('keyup', function() {
-    let filtro = this.value.trim().toLowerCase();
-    let filas = document.querySelectorAll('#tablaCatalogo tbody tr.fila-producto');
-    let mensajeInicial = document.getElementById('mensajeInicial');
+        document.getElementById('buscarInput').addEventListener('keyup', function() {
+            let filtro = this.value.trim().toLowerCase();
+            let filas = document.querySelectorAll('#tablaCatalogo tbody tr.fila-producto');
+            let mensajeInicial = document.getElementById('mensajeInicial');
+            let mensajeSinResultados = document.getElementById('mensajeSinResultados');
 
-    if (filtro === '') {
-        // Si el buscador está vacío, ocultamos todas las refacciones
-        filas.forEach(fila => fila.style.display = 'none');
-        if (mensajeInicial) mensajeInicial.style.display = '';
-    } else {
-        // Si hay texto escrito, ocultamos el mensaje inicial y mostramos las refacciones coincidentes
-        if (mensajeInicial) mensajeInicial.style.display = 'none';
-        
-        filas.forEach(fila => {
-            let texto = fila.textContent.toLowerCase();
-            fila.style.display = texto.includes(filtro) ? '' : 'none';
+            if (filtro === '') {
+                filas.forEach(fila => fila.style.display = 'none');
+                if (mensajeInicial) mensajeInicial.style.display = '';
+                if (mensajeSinResultados) mensajeSinResultados.style.display = 'none';
+            } else {
+                if (mensajeInicial) mensajeInicial.style.display = 'none';
+                let encontradas = 0;
+
+                filas.forEach(fila => {
+                    let texto = fila.textContent.toLowerCase();
+                    if (texto.includes(filtro)) {
+                        fila.style.display = '';
+                        encontradas++;
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+
+                if (mensajeSinResultados) {
+                    mensajeSinResultados.style.display = (encontradas === 0) ? '' : 'none';
+                }
+            }
         });
-    }
-});
 
         // Agregar producto
         function agregarAlCarrito(id, nombre, precio, stockMax) {
