@@ -232,10 +232,6 @@
                 <p>Movimientos, salidas y ventas registradas.</p>
             </a>
 
-            <li><a href="/ayuda">
-                <span class="material-symbols-outlined">help</span> 
-                Ayuda</a></li>
-
         </div>
     </div>
 
